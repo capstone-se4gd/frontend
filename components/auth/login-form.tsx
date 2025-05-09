@@ -22,8 +22,17 @@ export function LoginForm() {
     setIsLoading(true)
 
     try {
-      // Simulate authentication
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: username, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Login failed: ${response.statusText}`);
+      }
 
       // For demo purposes, hardcode some user roles
       let role = "user"
@@ -45,7 +54,8 @@ export function LoginForm() {
 
       router.push("/dashboard")
     } catch (err) {
-      setError("Invalid username or password")
+      setError(`Login failed: ${err instanceof Error ? err.message : "Unknown error"}`)
+      console.error("Login error:", err)
     } finally {
       setIsLoading(false)
     }

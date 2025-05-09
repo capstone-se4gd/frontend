@@ -1,13 +1,222 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Calendar } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { OutlineButton } from "@/components/ui/outline-button"
 
+// Define types based on the actual API response
+interface SustainabilityMetric {
+  name: string;
+  description: string;
+  unit: string;
+  value: number;
+}
+
+interface Product {
+  productId: string;
+  productName: string;
+  sustainabilityMetrics: SustainabilityMetric[];
+}
+
+interface AnalyticsData {
+  totalEmissions: number;
+  waterUsage: number;
+  energyConsumption: number;
+  emissionsByCategory: Record<string, number>;
+  emissionsByScope: {
+    scope1: number;
+    scope2: number;
+    scope3: number;
+  };
+  topProducts: {
+    productName: string;
+    emissions: number;
+    category: string;
+  }[];
+  monthlyData: {
+    emissions: number[];
+    water: number[];
+    energy: number[];
+  };
+}
+
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("year")
   const [category, setCategory] = useState("all")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/products')
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch product data')
+        }
+        
+        const products: Product[] = await response.json()
+        processProductData(products)
+      } catch (err) {
+        console.error('Error fetching product data:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
+
+  const processProductData = (products: Product[]) => {
+    // Calculate total emissions, water usage and energy consumption
+    let totalEmissions = 0
+    let waterUsage = 0
+    let energyConsumption = 0
+    
+    // Emissions by scope
+    let scope1Total = 0
+    let scope2Total = 0
+    let scope3Total = 0
+    
+    // Map to store products with their total emissions for sorting
+    const productsWithEmissions: {
+      productName: string;
+      emissions: number;
+      category: string;
+    }[] = []
+    
+    // Process metrics for each product
+    products.forEach(product => {
+      let productEmissions = 0
+      
+      product.sustainabilityMetrics.forEach(metric => {
+        switch(metric.name) {
+          case "Stationary Combustion":
+            scope1Total += metric.value
+            productEmissions += metric.value
+            totalEmissions += metric.value
+            break;
+          case "Purchased Electricity":
+            scope2Total += metric.value
+            productEmissions += metric.value
+            totalEmissions += metric.value
+            break;
+          case "Purchased Goods and Services":
+            scope3Total += metric.value
+            productEmissions += metric.value
+            totalEmissions += metric.value
+            break;
+          case "Water Quantities":
+            waterUsage += metric.value
+            break;
+          case "Purchased Electricity (Energy)":
+            energyConsumption += metric.value
+            break;
+        }
+      })
+      
+      // Add product with its emissions to the array
+      if (productEmissions > 0) {
+        productsWithEmissions.push({
+          productName: product.productName,
+          emissions: productEmissions,
+          // Assign a simple category based on product name (in a real app, this would come from the API)
+          category: categorizeProduct(product.productName)
+        })
+      }
+    })
+    
+    // Sort products by emissions (highest first)
+    const topProducts = productsWithEmissions
+      .sort((a, b) => b.emissions - a.emissions)
+      .slice(0, 5)
+    
+    // Calculate emissions by category
+    const emissionsByCategory = productsWithEmissions.reduce((acc, product) => {
+      acc[product.category] = (acc[product.category] || 0) + product.emissions
+      return acc
+    }, {} as Record<string, number>)
+    
+    // Generate mock monthly data (in a real app, this would come from the API with historical data)
+    const monthlyData = {
+      emissions: Array(12).fill(0).map(() => Math.floor(Math.random() * 80) + 20),
+      water: Array(12).fill(0).map(() => Math.floor(Math.random() * 40) + 40),
+      energy: Array(12).fill(0).map(() => Math.floor(Math.random() * 40) + 40)
+    }
+    
+    setAnalyticsData({
+      totalEmissions,
+      waterUsage,
+      energyConsumption,
+      emissionsByCategory,
+      emissionsByScope: {
+        scope1: scope1Total,
+        scope2: scope2Total,
+        scope3: scope3Total
+      },
+      topProducts,
+      monthlyData
+    })
+  }
+  
+  // Simple function to categorize products based on name
+  // In a real app, this would come from the API
+  const categorizeProduct = (productName: string): string => {
+    if (productName.toLowerCase().includes('wood')) return 'Furniture'
+    if (productName.toLowerCase().includes('cotton')) return 'Textiles'
+    if (productName.toLowerCase().includes('plastic')) return 'Packaging'
+    if (productName.toLowerCase().includes('electronic')) return 'Electronics'
+    return 'Other'
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto flex justify-center items-center h-64">
+        <p>Loading analytics data...</p>
+      </div>
+    )
+  }
+
+  if (error || !analyticsData) {
+    return (
+      <div className="max-w-7xl mx-auto flex justify-center items-center h-64">
+        <p className="text-red-500">{error || "Failed to load analytics data"}</p>
+      </div>
+    )
+  }
+
+  // Helper function to format numbers
+  const formatNumber = (num: number, unit: string) => {
+    return `${num.toLocaleString(undefined, { maximumFractionDigits: 1 })} ${unit}`
+  }
+
+  // Mock trends (in a real app, these would be calculated from historical data)
+  const trends = {
+    emissions: -12,
+    water: 5,
+    energy: -8
+  }
+
+  // Helper function to render trend indicators
+  const renderTrend = (trend: number) => {
+    const isPositive = trend > 0
+    const trendClass = isPositive ? "text-red-600" : "text-green-600"
+    const arrow = isPositive ? "↑" : "↓"
+    return <div className={`text-sm ${trendClass} mt-1`}>{arrow} {Math.abs(trend)}% from previous period</div>
+  }
+
+  // Calculate scope percentages
+  const totalScope = analyticsData.emissionsByScope.scope1 + 
+                    analyticsData.emissionsByScope.scope2 + 
+                    analyticsData.emissionsByScope.scope3
+  
+  const scope1Percentage = totalScope > 0 ? (analyticsData.emissionsByScope.scope1 / totalScope) * 100 : 0
+  const scope2Percentage = totalScope > 0 ? (analyticsData.emissionsByScope.scope2 / totalScope) * 100 : 0
+  const scope3Percentage = totalScope > 0 ? (analyticsData.emissionsByScope.scope3 / totalScope) * 100 : 0
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -43,22 +252,16 @@ export default function AnalyticsPage() {
             <CardDescription>All scopes combined</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">3,245 kg CO2e</div>
-            <div className="text-sm text-green-600 mt-1">↓ 12% from previous period</div>
+            <div className="text-3xl font-bold">{formatNumber(analyticsData.totalEmissions, "kg CO2e")}</div>
+            {renderTrend(trends.emissions)}
             <div className="h-[100px] mt-4 bg-gray-100 rounded flex items-end">
-              {/* Placeholder for chart */}
-              <div className="w-1/12 h-[30%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[40%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[35%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[60%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[50%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[70%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[65%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[80%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[75%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[60%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[50%] bg-[#12b784] mx-[0.5%]"></div>
-              <div className="w-1/12 h-[40%] bg-[#12b784] mx-[0.5%]"></div>
+              {analyticsData.monthlyData.emissions.map((value, index) => (
+                <div 
+                  key={index}
+                  className="w-1/12 bg-[#12b784] mx-[0.5%]"
+                  style={{ height: `${value}%` }}
+                ></div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -69,22 +272,16 @@ export default function AnalyticsPage() {
             <CardDescription>Total consumption</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">12,500 liters</div>
-            <div className="text-sm text-red-600 mt-1">↑ 5% from previous period</div>
+            <div className="text-3xl font-bold">{formatNumber(analyticsData.waterUsage, "m³")}</div>
+            {renderTrend(trends.water)}
             <div className="h-[100px] mt-4 bg-gray-100 rounded flex items-end">
-              {/* Placeholder for chart */}
-              <div className="w-1/12 h-[40%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[45%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[50%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[55%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[60%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[50%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[45%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[60%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[70%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[65%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[75%] bg-blue-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[80%] bg-blue-500 mx-[0.5%]"></div>
+              {analyticsData.monthlyData.water.map((value, index) => (
+                <div 
+                  key={index}
+                  className="w-1/12 bg-blue-500 mx-[0.5%]"
+                  style={{ height: `${value}%` }}
+                ></div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -95,22 +292,16 @@ export default function AnalyticsPage() {
             <CardDescription>Total usage</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">8,750 kWh</div>
-            <div className="text-sm text-green-600 mt-1">↓ 8% from previous period</div>
+            <div className="text-3xl font-bold">{formatNumber(analyticsData.energyConsumption, "MWh")}</div>
+            {renderTrend(trends.energy)}
             <div className="h-[100px] mt-4 bg-gray-100 rounded flex items-end">
-              {/* Placeholder for chart */}
-              <div className="w-1/12 h-[80%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[75%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[70%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[65%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[60%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[55%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[50%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[45%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[40%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[45%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[50%] bg-yellow-500 mx-[0.5%]"></div>
-              <div className="w-1/12 h-[45%] bg-yellow-500 mx-[0.5%]"></div>
+              {analyticsData.monthlyData.energy.map((value, index) => (
+                <div 
+                  key={index}
+                  className="w-1/12 bg-yellow-500 mx-[0.5%]"
+                  style={{ height: `${value}%` }}
+                ></div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -148,27 +339,21 @@ export default function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="h-[300px] bg-gray-100 rounded p-4 flex items-end justify-around">
-              {/* Placeholder for chart */}
-              <div className="flex flex-col items-center w-1/5">
-                <div className="h-[100px] w-full bg-[#12b784] rounded"></div>
-                <div className="mt-2 text-sm">Furniture</div>
-              </div>
-              <div className="flex flex-col items-center w-1/5">
-                <div className="h-[180px] w-full bg-[#12b784] rounded"></div>
-                <div className="mt-2 text-sm">Textiles</div>
-              </div>
-              <div className="flex flex-col items-center w-1/5">
-                <div className="h-[220px] w-full bg-[#12b784] rounded"></div>
-                <div className="mt-2 text-sm">Electronics</div>
-              </div>
-              <div className="flex flex-col items-center w-1/5">
-                <div className="h-[150px] w-full bg-[#12b784] rounded"></div>
-                <div className="mt-2 text-sm">Packaging</div>
-              </div>
-              <div className="flex flex-col items-center w-1/5">
-                <div className="h-[80px] w-full bg-[#12b784] rounded"></div>
-                <div className="mt-2 text-sm">Other</div>
-              </div>
+              {Object.entries(analyticsData.emissionsByCategory).map(([categoryName, value], index) => {
+                // Calculate percentage height based on the maximum value
+                const maxValue = Math.max(...Object.values(analyticsData.emissionsByCategory))
+                const heightPercentage = (value / maxValue) * 100
+                
+                return (
+                  <div key={index} className="flex flex-col items-center w-1/5">
+                    <div 
+                      className="w-full bg-[#12b784] rounded" 
+                      style={{ height: `${heightPercentage * 2}px` }}
+                    ></div>
+                    <div className="mt-2 text-sm">{categoryName}</div>
+                  </div>
+                )
+              })}
             </div>
           </CardContent>
         </Card>
@@ -179,19 +364,27 @@ export default function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="h-[250px] bg-gray-100 rounded p-4 flex items-center justify-center">
-              {/* Placeholder for pie chart */}
               <div className="relative w-[200px] h-[200px] rounded-full overflow-hidden">
+                {/* Scope 1 slice */}
                 <div
                   className="absolute inset-0 bg-[#12b784]"
-                  style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 0)" }}
+                  style={{ 
+                    clipPath: `polygon(50% 50%, 50% 0%, ${50 + Math.cos(2 * Math.PI * scope1Percentage / 100) * 50}% ${50 - Math.sin(2 * Math.PI * scope1Percentage / 100) * 50}%, 50% 50%)` 
+                  }}
                 ></div>
+                {/* Scope 2 slice */}
                 <div
                   className="absolute inset-0 bg-blue-500"
-                  style={{ clipPath: "polygon(0 0, 100% 0, 0 100%, 0 0)" }}
+                  style={{ 
+                    clipPath: `polygon(50% 50%, ${50 + Math.cos(2 * Math.PI * scope1Percentage / 100) * 50}% ${50 - Math.sin(2 * Math.PI * scope1Percentage / 100) * 50}%, ${50 + Math.cos(2 * Math.PI * (scope1Percentage + scope2Percentage) / 100) * 50}% ${50 - Math.sin(2 * Math.PI * (scope1Percentage + scope2Percentage) / 100) * 50}%, 50% 50%)` 
+                  }}
                 ></div>
+                {/* Scope 3 slice */}
                 <div
                   className="absolute inset-0 bg-yellow-500"
-                  style={{ clipPath: "polygon(100% 0, 100% 100%, 0 100%, 100% 0)" }}
+                  style={{ 
+                    clipPath: `polygon(50% 50%, ${50 + Math.cos(2 * Math.PI * (scope1Percentage + scope2Percentage) / 100) * 50}% ${50 - Math.sin(2 * Math.PI * (scope1Percentage + scope2Percentage) / 100) * 50}%, 50% 0%, 50% 50%)` 
+                  }}
                 ></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-[120px] h-[120px] bg-white rounded-full"></div>
@@ -201,15 +394,15 @@ export default function AnalyticsPage() {
             <div className="mt-4 grid grid-cols-3 gap-2">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-[#12b784] rounded-full mr-2"></div>
-                <span className="text-sm">Scope 1: 25%</span>
+                <span className="text-sm">Scope 1: {Math.round(scope1Percentage)}%</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                <span className="text-sm">Scope 2: 30%</span>
+                <span className="text-sm">Scope 2: {Math.round(scope2Percentage)}%</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                <span className="text-sm">Scope 3: 45%</span>
+                <span className="text-sm">Scope 3: {Math.round(scope3Percentage)}%</span>
               </div>
             </div>
           </CardContent>
@@ -282,36 +475,23 @@ export default function AnalyticsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">Couch Model X</td>
-                    <td className="py-3 px-4">Furniture</td>
-                    <td className="py-3 px-4">450 kg CO2e</td>
-                    <td className="py-3 px-4 text-green-600">↓ 12%</td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">Office Chair Pro</td>
-                    <td className="py-3 px-4">Furniture</td>
-                    <td className="py-3 px-4">320 kg CO2e</td>
-                    <td className="py-3 px-4 text-green-600">↓ 8%</td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">Cotton Textile Batch</td>
-                    <td className="py-3 px-4">Textiles</td>
-                    <td className="py-3 px-4">280 kg CO2e</td>
-                    <td className="py-3 px-4 text-red-600">↑ 5%</td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">Eco Packaging Set</td>
-                    <td className="py-3 px-4">Packaging</td>
-                    <td className="py-3 px-4">120 kg CO2e</td>
-                    <td className="py-3 px-4 text-green-600">↓ 22%</td>
-                  </tr>
-                  <tr className="hover:bg-gray-50">
-                    <td className="py-3 px-4">Smart Desk</td>
-                    <td className="py-3 px-4">Furniture</td>
-                    <td className="py-3 px-4">380 kg CO2e</td>
-                    <td className="py-3 px-4 text-red-600">↑ 3%</td>
-                  </tr>
+                  {analyticsData.topProducts.map((product, index) => (
+                    <tr key={index} className={`${index < analyticsData.topProducts.length - 1 ? 'border-b' : ''} hover:bg-gray-50`}>
+                      <td className="py-3 px-4">{product.productName}</td>
+                      <td className="py-3 px-4">{product.category}</td>
+                      <td className="py-3 px-4">{product.emissions.toFixed(1)} kg CO2e</td>
+                      <td className="py-3 px-4 text-green-600">↓ {Math.floor(Math.random() * 15) + 5}%</td>
+                    </tr>
+                  ))}
+                  {/* Add dummy rows if we have fewer than 5 products */}
+                  {Array(Math.max(0, 5 - analyticsData.topProducts.length)).fill(0).map((_, index) => (
+                    <tr key={`dummy-${index}`} className={`${index < 5 - analyticsData.topProducts.length - 1 ? 'border-b' : ''} hover:bg-gray-50`}>
+                      <td className="py-3 px-4">Product {index + analyticsData.topProducts.length + 1}</td>
+                      <td className="py-3 px-4">Other</td>
+                      <td className="py-3 px-4">{(Math.random() * 100).toFixed(1)} kg CO2e</td>
+                      <td className="py-3 px-4 text-red-600">↑ {Math.floor(Math.random() * 10) + 1}%</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
