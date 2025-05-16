@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Stepper } from "@/components/ui/stepper"
 import { FileUploader } from "@/components/upload/file-uploader"
 import { BatchSummary } from "@/components/upload/batch-summary"
+import { Description } from "@radix-ui/react-toast"
 
 const STEPS = [
   { id: "product", title: "Product Information" },
@@ -20,6 +21,15 @@ const STEPS = [
   { id: "review", title: "Review & Submit" },
 ]
 
+const DESCRIPTION = [
+  { id: "product", description: "General information about the product being evaluated for sustainability impact." },
+  { id: "stationary", description: "Emissions and fuel usage from stationary combustion sources, such as boilers and generators." },
+  { id: "heat", description: "Data on externally purchased heat energy used in product operations." },
+  { id: "goods", description: "Environmental impact of goods and services purchased to create or support the product." },
+  { id: "electricity", description: "Electricity consumption related to the product, including source and usage patterns." },
+  { id: "water", description: "Volume of water used in the product lifecycle or manufacturing process." },
+  { id: "review", description: "Final step to review and submit all entered sustainability metrics for this product." }
+];
 // Extended product categories
 const PRODUCT_CATEGORIES = [
   { value: "furniture", label: "Furniture" },
@@ -110,10 +120,16 @@ export default function UploadPage() {
 
   const renderStepContent = () => {
     const currentStepId = STEPS[currentStep].id
+    const description = DESCRIPTION.find( e => e.id == currentStepId)?.description
 
     if (currentStepId === "product") {
-      return (
-        <Card>
+      return (    
+        <div>
+          <div className="pb-3">
+           {description}
+           
+          </div>
+            <Card>
           <CardContent className="pt-6">
             <div className="space-y-4">
               <div>
@@ -170,6 +186,8 @@ export default function UploadPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
+    
       )
     }
 
@@ -191,6 +209,9 @@ export default function UploadPage() {
     // For all other steps, just show the file uploader
     return (
       <div className="space-y-6">
+        <div>
+          {description}
+        </div>
         <FileUploader
           title={`Upload ${STEPS[currentStep].title} Files`}
           description="Upload XML invoices or other supporting documents. The system will automatically extract sustainability metrics from these files."

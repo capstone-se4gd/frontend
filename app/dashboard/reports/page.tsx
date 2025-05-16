@@ -12,51 +12,36 @@ import { Badge } from "@/components/ui/badge"
 const MOCK_REPORTS = [
   {
     id: "rep-001",
-    title: "Q3 2023 Sustainability Report",
-    type: "quarterly",
-    date: new Date(2023, 9, 15),
+    title: "Middleware specification: Endpoints usage",
+    type: "documentation",
+    date: new Date(2025, 5, 16),
     status: "completed",
-    metrics: {
-      totalEmissions: "1,245 kg CO2e",
-      waterUsage: "3,500 liters",
-      energyConsumption: "780 kWh",
-    },
+    link: "https://drive.google.com/file/d/1JV3LzBGU_0x1ije3d2fexsPBXg3tlZNA/view?usp=sharing",
+
   },
   {
     id: "rep-002",
-    title: "Wood Extraction Process Analysis",
-    type: "process",
-    date: new Date(2023, 10, 5),
+    title: "Microsoft Sustainability Manager: Emission calculations",
+    type: "documentation",
+    date: new Date(2025, 5, 16),
     status: "completed",
-    metrics: {
-      totalEmissions: "450 kg CO2e",
-      waterUsage: "1,200 liters",
-      energyConsumption: "320 kWh",
-    },
+    link: "https://drive.google.com/file/d/133d67bFbJ9EHBqSZzYIhhfYYIg5QOx3W/view?usp=sharing",
+
   },
   {
     id: "rep-003",
-    title: "Textile Manufacturing Impact",
+    title: "Microsoft Sustainability Manager: Account Setup",
     type: "process",
     date: new Date(2023, 10, 10),
     status: "processing",
-    metrics: {
-      totalEmissions: "pending",
-      waterUsage: "pending",
-      energyConsumption: "pending",
-    },
   },
   {
     id: "rep-004",
-    title: "Annual Sustainability Overview 2023",
+    title: "Microsoft Sustainability Manager: Data Ingestion",
     type: "annual",
     date: new Date(2023, 11, 20),
     status: "draft",
-    metrics: {
-      totalEmissions: "draft",
-      waterUsage: "draft",
-      energyConsumption: "draft",
-    },
+
   },
 ]
 
@@ -120,14 +105,8 @@ export default function ReportsPage() {
     <div className="max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Reports</h1>
-          <p className="text-gray-500 mt-1">View and generate sustainability reports</p>
-        </div>
-        <div className="mt-4 md:mt-0">
-          <PrimaryButton>
-            <FileText className="w-4 h-4 mr-2" />
-            Generate New Report
-          </PrimaryButton>
+          <h1 className="text-3xl font-bold">User Manual</h1>
+          <p className="text-gray-500 mt-1">View useful documentation to guide users through the process</p>
         </div>
       </div>
 
@@ -141,30 +120,6 @@ export default function ReportsPage() {
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
             />
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <OutlineButton onClick={() => handleFilterByType(null)} className={!selectedType ? "bg-gray-100" : ""}>
-              All
-            </OutlineButton>
-            <OutlineButton
-              onClick={() => handleFilterByType("quarterly")}
-              className={selectedType === "quarterly" ? "bg-gray-100" : ""}
-            >
-              Quarterly
-            </OutlineButton>
-            <OutlineButton
-              onClick={() => handleFilterByType("annual")}
-              className={selectedType === "annual" ? "bg-gray-100" : ""}
-            >
-              Annual
-            </OutlineButton>
-            <OutlineButton
-              onClick={() => handleFilterByType("process")}
-              className={selectedType === "process" ? "bg-gray-100" : ""}
-            >
-              Process
-            </OutlineButton>
           </div>
         </div>
 
@@ -185,20 +140,6 @@ export default function ReportsPage() {
                   <tr key={report.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
                       <div className="font-medium">{report.title}</div>
-                      <div className="text-sm text-gray-500">
-                        {report.status === "completed" ? (
-                          <>
-                            <span className="inline-block mr-4">
-                              <span className="font-medium">Emissions:</span> {report.metrics.totalEmissions}
-                            </span>
-                            <span className="inline-block">
-                              <span className="font-medium">Water:</span> {report.metrics.waterUsage}
-                            </span>
-                          </>
-                        ) : (
-                          "Metrics not finalized"
-                        )}
-                      </div>
                     </td>
                     <td className="py-3 px-4">{getTypeLabel(report.type)}</td>
                     <td className="py-3 px-4">
@@ -214,9 +155,12 @@ export default function ReportsPage() {
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex justify-end gap-2">
+                        <a href={report.link} target="_blank">                        
                         <button className="p-1 text-gray-500 hover:text-gray-700" title="Download">
                           <Download className="w-5 h-5" />
                         </button>
+                        </a>
+
                         <button className="p-1 text-gray-500 hover:text-gray-700" title="Print">
                           <Printer className="w-5 h-5" />
                         </button>
@@ -234,72 +178,6 @@ export default function ReportsPage() {
             </tbody>
           </table>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Report Templates</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              <li className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <div className="font-medium">Quarterly Sustainability Report</div>
-                <div className="text-sm text-gray-500">Comprehensive quarterly overview</div>
-              </li>
-              <li className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <div className="font-medium">Annual Sustainability Report</div>
-                <div className="text-sm text-gray-500">Complete annual sustainability metrics</div>
-              </li>
-              <li className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <div className="font-medium">Process Analysis Report</div>
-                <div className="text-sm text-gray-500">Detailed analysis of specific processes</div>
-              </li>
-              <li className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <div className="font-medium">Executive Summary</div>
-                <div className="text-sm text-gray-500">Condensed overview for management</div>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Scheduled Reports</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              <li className="p-3 border rounded-lg flex justify-between items-center">
-                <div>
-                  <div className="font-medium">Quarterly Report</div>
-                  <div className="text-sm text-gray-500">Every 3 months</div>
-                </div>
-                <Badge className="bg-blue-100 text-blue-800">Active</Badge>
-              </li>
-              <li className="p-3 border rounded-lg flex justify-between items-center">
-                <div>
-                  <div className="font-medium">Monthly Process Summary</div>
-                  <div className="text-sm text-gray-500">Monthly</div>
-                </div>
-                <Badge className="bg-blue-100 text-blue-800">Active</Badge>
-              </li>
-              <li className="p-3 border rounded-lg flex justify-between items-center">
-                <div>
-                  <div className="font-medium">Annual Sustainability Report</div>
-                  <div className="text-sm text-gray-500">Yearly (December)</div>
-                </div>
-                <Badge className="bg-blue-100 text-blue-800">Active</Badge>
-              </li>
-              <li className="p-3 border rounded-lg flex justify-between items-center">
-                <div>
-                  <div className="font-medium">Weekly Water Usage</div>
-                  <div className="text-sm text-gray-500">Weekly</div>
-                </div>
-                <Badge className="bg-gray-100 text-gray-800">Paused</Badge>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )

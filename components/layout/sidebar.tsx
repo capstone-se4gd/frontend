@@ -50,7 +50,7 @@ export function Sidebar({ userRole = "user" }: SidebarProps) {
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: Layers, label: "Batches", path: "/dashboard/batches" },
-    { icon: FileText, label: "Reports", path: "/dashboard/reports" },
+    { icon: FileText, label: "User Manual", path: "/dashboard/reports" },
     { icon: BarChart2, label: "Analytics", path: "/dashboard/analytics" },
   ]
 
