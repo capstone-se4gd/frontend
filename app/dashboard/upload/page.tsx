@@ -9,7 +9,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Stepper } from "@/components/ui/stepper"
 import { FileUploader } from "@/components/upload/file-uploader"
 import { BatchSummary } from "@/components/upload/batch-summary"
-import { Description } from "@radix-ui/react-toast"
 
 const STEPS = [
   { id: "product", title: "Product Information" },
@@ -30,6 +29,7 @@ const DESCRIPTION = [
   { id: "water", description: "Volume of water used in the product lifecycle or manufacturing process." },
   { id: "review", description: "Final step to review and submit all entered sustainability metrics for this product." }
 ];
+
 // Extended product categories
 const PRODUCT_CATEGORIES = [
   { value: "furniture", label: "Furniture" },
@@ -120,96 +120,114 @@ export default function UploadPage() {
 
   const renderStepContent = () => {
     const currentStepId = STEPS[currentStep].id
-    const description = DESCRIPTION.find( e => e.id == currentStepId)?.description
+    const description = DESCRIPTION.find(e => e.id === currentStepId)?.description
 
     if (currentStepId === "product") {
       return (    
         <div>
-          <div className="pb-3">
-           {description}
-           
+          <div className="pb-3" id="step-description" role="region" aria-label="Step description">
+            {description}
           </div>
-            <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="batchName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Batch Name
-                </label>
-                <input
-                  id="batchName"
-                  type="text"
-                  value={batchName}
-                  onChange={(e) => setBatchName(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
-                  placeholder="Enter a name for this batch"
-                />
-              </div>
-              <div>
-                <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Name
-                </label>
-                <input
-                  id="productName"
-                  type="text"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
-                  placeholder="Enter the product name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Product Category</label>
-                <select
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
-                  value={productCategory}
-                  onChange={(e) => setProductCategory(e.target.value)}
-                >
-                  <option value="">Select a category</option>
-                  {PRODUCT_CATEGORIES.map((category) => (
-                    <option key={category.value} value={category.value}>
-                      {category.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
-                  rows={3}
-                  placeholder="Enter a description of the product"
-                  value={productDescription}
-                  onChange={(e) => setProductDescription(e.target.value)}
-                ></textarea>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <form onSubmit={(e) => e.preventDefault()} aria-labelledby="product-info-heading">
+                <h2 id="product-info-heading" className="sr-only">Product Information Form</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="batchName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Batch Name
+                    </label>
+                    <input
+                      id="batchName"
+                      type="text"
+                      value={batchName}
+                      onChange={(e) => setBatchName(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
+                      placeholder="Enter a name for this batch"
+                      aria-required="true"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Product Name
+                    </label>
+                    <input
+                      id="productName"
+                      type="text"
+                      value={productName}
+                      onChange={(e) => setProductName(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
+                      placeholder="Enter the product name"
+                      aria-required="true"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="productCategory" className="block text-sm font-medium text-gray-700 mb-1">
+                      Product Category
+                    </label>
+                    <select
+                      id="productCategory"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
+                      value={productCategory}
+                      onChange={(e) => setProductCategory(e.target.value)}
+                      aria-required="true"
+                    >
+                      <option value="">Select a category</option>
+                      {PRODUCT_CATEGORIES.map((category) => (
+                        <option key={category.value} value={category.value}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="productDescription" className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      id="productDescription"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
+                      rows={3}
+                      placeholder="Enter a description of the product"
+                      value={productDescription}
+                      onChange={(e) => setProductDescription(e.target.value)}
+                      aria-describedby="description-hint"
+                    ></textarea>
+                    <p id="description-hint" className="text-sm text-gray-500 mt-1">
+                      Provide details about the product's features and specifications.
+                    </p>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
-    
       )
     }
 
     if (currentStepId === "review") {
       return (
-        <BatchSummary
-          batchName={batchName}
-          productName={productName}
-          productCategory={PRODUCT_CATEGORIES.find((c) => c.value === productCategory)?.label || productCategory}
-          productDescription={productDescription}
-          files={files}
-          metrics={extractedMetrics}
-          isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
-        />
+        <div aria-labelledby="review-heading">
+          <h2 id="review-heading" className="sr-only">Review and Submit</h2>
+          <BatchSummary
+            batchName={batchName}
+            productName={productName}
+            productCategory={PRODUCT_CATEGORIES.find((c) => c.value === productCategory)?.label || productCategory}
+            productDescription={productDescription}
+            files={files}
+            metrics={extractedMetrics}
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+          />
+        </div>
       )
     }
 
     // For all other steps, just show the file uploader
     return (
-      <div className="space-y-6">
-        <div>
+      <div className="space-y-6" aria-labelledby={`${currentStepId}-heading`}>
+        <h2 id={`${currentStepId}-heading`} className="sr-only">{STEPS[currentStep].title}</h2>
+        <div id={`${currentStepId}-description`} className="mb-4" aria-live="polite">
           {description}
         </div>
         <FileUploader
@@ -219,34 +237,53 @@ export default function UploadPage() {
           files={files[currentStepId] || []}
           onUpload={(newFiles) => handleFileUpload(currentStepId, newFiles)}
           onRemove={(index) => handleRemoveFile(currentStepId, index)}
+          id={`${currentStepId}-uploader`}
+          ariaLabel={`Upload files for ${STEPS[currentStep].title}`}
         />
       </div>
     )
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <main className="max-w-5xl mx-auto" role="main">
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold">Upload Sustainability Data</h1>
         <p className="text-gray-500 mt-1">Complete all steps to submit your batch</p>
       </div>
 
-      <Stepper steps={STEPS} currentStep={currentStep} onStepClick={setCurrentStep} />
+      <nav aria-label="Form steps">
+        <Stepper 
+          steps={STEPS} 
+          currentStep={currentStep} 
+          onStepClick={setCurrentStep} 
+          aria-current={`step ${currentStep + 1} of ${STEPS.length}`}
+          aria-controls="step-content"
+        />
+      </nav>
 
-      <div className="my-8">{renderStepContent()}</div>
+      <div className="my-8" id="step-content" role="region" aria-label={STEPS[currentStep].title}>
+        {renderStepContent()}
+      </div>
 
       <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8">
-        <OutlineButton onClick={handlePrevious} disabled={currentStep === 0}>
+        <OutlineButton 
+          onClick={handlePrevious} 
+          disabled={currentStep === 0}
+          ariaLabel="Go to previous step"
+        >
           Previous
         </OutlineButton>
 
         {currentStep < STEPS.length - 1 ? (
-          <PrimaryButton onClick={handleNext}>
+          <PrimaryButton 
+            onClick={handleNext}
+            ariaLabel="Go to next step"
+          >
             Next
-            <ChevronRight className="ml-2 h-4 w-4" />
+            <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </PrimaryButton>
         ) : null}
       </div>
-    </div>
+    </main>
   )
 }

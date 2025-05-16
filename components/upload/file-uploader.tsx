@@ -7,15 +7,17 @@ import { FileText, Upload, X } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface FileUploaderProps {
+  id?: string
   title: string
   description: string
   accept: string
   files: File[]
   onUpload: (files: File[]) => void
   onRemove: (index: number) => void
+  ariaLabel?: string
 }
 
-export function FileUploader({ title, description, accept, files, onUpload, onRemove }: FileUploaderProps) {
+export function FileUploader({ id, title, description, accept, files, onUpload, onRemove, ariaLabel }: FileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
@@ -78,12 +80,14 @@ export function FileUploader({ title, description, accept, files, onUpload, onRe
             <p className="text-xs text-gray-500 mt-1">Supported formats: {accept.replace(/\./g, "").toUpperCase()}</p>
           </div>
           <input
+            id={id}
             ref={fileInputRef}
             type="file"
             className="hidden"
             accept={accept}
             multiple
             onChange={handleFileChange}
+            aria-label={ariaLabel}
           />
         </div>
 

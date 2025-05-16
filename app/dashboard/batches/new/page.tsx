@@ -83,7 +83,7 @@ export default function NewBatchPage() {
 
             {/* Create button */}
             <div className="flex justify-center mt-16">
-              <PrimaryButton onClick={handleCreate} size="large">
+              <PrimaryButton ariaLabel="Create new batch" onClick={handleCreate} size="large">
                 Create
               </PrimaryButton>
             </div>

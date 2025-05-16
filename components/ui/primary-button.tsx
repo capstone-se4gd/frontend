@@ -8,10 +8,11 @@ interface PrimaryButtonProps {
   size?: "default" | "large"
   className?: string
   type?: "button" | "submit" | "reset"
-  disabled?: boolean
+  disabled?: boolean,
+  ariaLabel?: string
 }
 
-export function PrimaryButton({ children, onClick, size = "default", className = "", type = "button", disabled = false }: PrimaryButtonProps) {
+export function PrimaryButton({ children, onClick, size = "default", className = "", type = "button", disabled = false, ariaLabel }: PrimaryButtonProps) {
   const sizeClasses = "px-8 py-4 text-lg flex wrap items-center"
 
   return (
@@ -20,6 +21,7 @@ export function PrimaryButton({ children, onClick, size = "default", className =
       onClick={onClick}
       type={type}
       disabled={disabled}
+      aria-label={ariaLabel}
     >
       {children}
     </button>

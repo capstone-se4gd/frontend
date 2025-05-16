@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Clock, FileText, Plus, Search, Upload } from "lucide-react"
 import { PrimaryButton } from "@/components/ui/primary-button"
-import { OutlineButton } from "@/components/ui/outline-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -90,15 +89,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <main className="max-w-7xl mx-auto" aria-labelledby="dashboard-heading">
+      <h1 id="dashboard-heading" className="sr-only">Dashboard</h1>
+      
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Welcome, {user?.name || "User"}!</h1>
+          <h2 className="text-3xl font-bold">Welcome, {user?.name || "User"}!</h2>
           <p className="text-gray-500 mt-1">Here's an overview of your sustainability data</p>
         </div>
         <div className="mt-4 md:mt-0 flex">
-          <PrimaryButton onClick={handleNewBatch}>
-            <Plus className="w-4 h-4 mr-2" />
+          <PrimaryButton onClick={handleNewBatch} ariaLabel="Create new batch">
+            <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
             New Batch
           </PrimaryButton>
         </div>
@@ -112,7 +113,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <FileText className="w-8 h-8 text-[#12b784] mr-3" />
+              <FileText className="w-8 h-8 text-[#12b784] mr-3" aria-hidden="true" />
               <span className="text-3xl font-bold">{recentBatches.length}</span>
             </div>
           </CardContent>
@@ -124,7 +125,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <Clock className="w-8 h-8 text-blue-500 mr-3" />
+              <Clock className="w-8 h-8 text-blue-500 mr-3" aria-hidden="true" />
               <span className="text-3xl font-bold">
                 {recentBatches.filter((batch) => batch.status === "processing").length}
               </span>
@@ -146,30 +147,33 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="bg-white rounded-lg border shadow-sm p-6 mb-8">
+      <section aria-labelledby="recent-batches-heading" className="bg-white rounded-lg border shadow-sm p-6 mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-          <h2 className="text-xl font-bold">Recent Batches</h2>
+          <h2 id="recent-batches-heading" className="text-xl font-bold">Recent Batches</h2>
           <div className="mt-4 md:mt-0 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <label htmlFor="search-batches" className="sr-only">Search batches</label>
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" aria-hidden="true" />
             <Input
+              id="search-batches"
               placeholder="Search batches..."
               className="pl-10 w-full md:w-64"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-controls="batches-table"
             />
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table id="batches-table" className="w-full" aria-label="Recent batches">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Product</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Components</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
+                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Product</th>
+                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Components</th>
+                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
+                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
+                <th scope="col" className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -197,6 +201,7 @@ export default function DashboardPage() {
                       <button
                         onClick={() => handleViewBatch(batch.id)}
                         className="text-[#12b784] hover:text-[#0e9e70] font-medium"
+                        aria-label={`View details for ${batch.name}`}
                       >
                         View
                       </button>
@@ -213,7 +218,7 @@ export default function DashboardPage() {
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }
