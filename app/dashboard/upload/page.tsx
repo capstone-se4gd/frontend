@@ -88,10 +88,73 @@ export default function UploadPage() {
     }))
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    const stepId = STEPS[currentStep].id;
+
+    // Validation for the "product" step
+    if (stepId === "product") {
+      if (!batchName || !productName || !productCategory || !productDescription) {
+        alert("Please complete all product information fields before proceeding.");
+        return;
+      }
+    }
+
+    const fileUploadSteps = ["stationary", "heat", "goods", "electricity", "water"];
+
+    // Check if current step expects files
+    if (fileUploadSteps.includes(stepId)) {
+      const stepFiles = files[stepId];
+
+      // If there are no files, skip upload and go to next step
+      if (!stepFiles || stepFiles.length === 0) {
+        setCurrentStep(currentStep + 1);
+        window.scrollTo(0, 0);
+        return;
+      }
+
+      // Proceed with file upload
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("Token missing");
+        alert("Authentication token missing. Please log in again.");
+        return;
+      }
+
+      const formData = new FormData();
+      for (const file of stepFiles) {
+        formData.append("files", file);
+      }
+
+      try {
+        const response = await fetch("/api/process-invoices", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error("Upload failed", data);
+          alert("File processing failed. Please try again.");
+          return;
+        } else {
+          console.log("Success", data);
+          // Optionally update any state here
+        }
+      } catch (error) {
+        console.error("Network error during file upload", error);
+        alert("Something went wrong during the upload. Please try again.");
+        return;
+      }
+    }
+
+    // Continue to next step (if upload succeeded or wasn't needed)
     if (currentStep < STEPS.length - 1) {
-      setCurrentStep(currentStep + 1)
-      window.scrollTo(0, 0)
+      setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
     }
   }
 
@@ -123,7 +186,7 @@ export default function UploadPage() {
     const description = DESCRIPTION.find(e => e.id === currentStepId)?.description
 
     if (currentStepId === "product") {
-      return (    
+      return (
         <div>
           <div className="pb-3" id="step-description" role="region" aria-label="Step description">
             {description}

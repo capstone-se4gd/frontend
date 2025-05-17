@@ -42,6 +42,11 @@ export function LoginForm() {
         role = "manager"
       }
 
+      const data = await response.json();
+    
+      // Save the token in localStorage for future API requests
+      localStorage.setItem("token", data.token);
+
       // Store user info in localStorage
       localStorage.setItem(
         "user",
