@@ -64,6 +64,7 @@ export default function UploadPage() {
     water: [],
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [transactions, setTransactions] = useState<Record<string, string>>({})
 
   // Mock metrics data that would be extracted from uploaded files
   const [extractedMetrics] = useState({
@@ -143,6 +144,13 @@ export default function UploadPage() {
         } else {
           console.log("Success", data);
           // Optionally update any state here
+
+          if (data.transaction_id) {
+            setTransactions((prev) => ({
+              ...prev,
+              [stepId]: data.transaction_id,
+            }));
+          }
         }
       } catch (error) {
         console.error("Network error during file upload", error);
@@ -269,6 +277,7 @@ export default function UploadPage() {
     }
 
     if (currentStepId === "review") {
+      console.log("📦 Transaction IDs:", transactions);
       return (
         <div aria-labelledby="review-heading">
           <h2 id="review-heading" className="sr-only">Review and Submit</h2>
@@ -281,6 +290,7 @@ export default function UploadPage() {
             metrics={extractedMetrics}
             isSubmitting={isSubmitting}
             onSubmit={handleSubmit}
+            transactions={transactions}
           />
         </div>
       )
@@ -315,10 +325,10 @@ export default function UploadPage() {
       </div>
 
       <nav aria-label="Form steps">
-        <Stepper 
-          steps={STEPS} 
-          currentStep={currentStep} 
-          onStepClick={setCurrentStep} 
+        <Stepper
+          steps={STEPS}
+          currentStep={currentStep}
+          onStepClick={setCurrentStep}
           aria-current={`step ${currentStep + 1} of ${STEPS.length}`}
           aria-controls="step-content"
         />
@@ -329,8 +339,8 @@ export default function UploadPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8">
-        <OutlineButton 
-          onClick={handlePrevious} 
+        <OutlineButton
+          onClick={handlePrevious}
           disabled={currentStep === 0}
           ariaLabel="Go to previous step"
         >
@@ -338,7 +348,7 @@ export default function UploadPage() {
         </OutlineButton>
 
         {currentStep < STEPS.length - 1 ? (
-          <PrimaryButton 
+          <PrimaryButton
             onClick={handleNext}
             ariaLabel="Go to next step"
           >

@@ -14,6 +14,7 @@ interface BatchSummaryProps {
   metrics: { [key: string]: { [key: string]: string } }
   isSubmitting: boolean
   onSubmit: () => void
+  transactions: Record<string, string>
 }
 
 export function BatchSummary({
@@ -25,6 +26,7 @@ export function BatchSummary({
   metrics,
   isSubmitting,
   onSubmit,
+  transactions
 }: BatchSummaryProps) {
   const totalFiles = Object.values(files).reduce((total, fileArray) => total + fileArray.length, 0)
 
