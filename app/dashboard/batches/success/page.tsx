@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { CheckCircle2 } from "lucide-react"
 import { PrimaryButton } from "@/components/ui/primary-button"
@@ -8,6 +9,12 @@ import { Card, CardContent } from "@/components/ui/card"
 
 export default function SuccessPage() {
   const router = useRouter()
+  const [batchId, setBatchId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const storedBatchId = localStorage.getItem("createdBatchId")
+    setBatchId(storedBatchId)
+  }, [])
 
   return (
     <div className="max-w-3xl mx-auto text-center">
@@ -25,7 +32,7 @@ export default function SuccessPage() {
           <div className="space-y-4">
             <div className="flex justify-between py-2 border-b">
               <span className="font-medium">Batch ID:</span>
-              <span>BATCH-2023-11-001</span>
+              <span>{batchId || "Loading..."}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
               <span className="font-medium">Submission Date:</span>
@@ -44,10 +51,15 @@ export default function SuccessPage() {
       </Card>
 
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <PrimaryButton onClick={() => router.push("/dashboard/batches/BATCH-2023-11-001")}>
+        <PrimaryButton
+          disabled={!batchId}
+          onClick={() => router.push(`/dashboard/batches/${batchId}`)}
+        >
           View Batch Details
         </PrimaryButton>
-        <OutlineButton onClick={() => router.push("/dashboard")}>Return to Dashboard</OutlineButton>
+        <OutlineButton onClick={() => router.push("/dashboard")}>
+          Return to Dashboard
+        </OutlineButton>
       </div>
     </div>
   )

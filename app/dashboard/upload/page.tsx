@@ -173,13 +173,106 @@ export default function UploadPage() {
     }
   }
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true)
+  async function submitBatch(
+    transactions: Record<string, string>,
+    productName: string,
+    productId: string | null,
+    setIsSubmitting: (value: boolean) => void,
+  ) {
+    setIsSubmitting(true);
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("No token found. Please log in again.");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const allInvoices: any[] = [];
 
+      for (const id of Object.values(transactions)) {
+        const res = await fetch(`/api/transaction/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch transaction with id: ${id}`);
+        }
+
+        const data = await res.json();
+        console.log(data);
+        const invoices = data.result.map((invoice: any) => ({
+          facility: invoice.SellerPartyDetails?.SellerOrganisationName || "Unknown Facility",
+          organizationalUnit: invoice.BuyerPartyDetails?.BuyerOrganisationName || "Unknown OU",
+          url: invoice.other_url || "",
+          subCategory: invoice.InvoiceDetails?.InvoiceTypeCode || "",
+          invoiceNumber: invoice.InvoiceDetails?.InvoiceNumber || "",
+          invoiceDate: invoice.InvoiceDetails?.InvoiceDate || "",
+          emissionsArePerUnit: "false",
+          quantityNeededPerUnit: 0,
+          unitsBought: invoice.InvoiceRows?.reduce((sum: number, row: any) => sum + Number(row.DeliveredQuantity || 0), 0) || 0,
+          totalAmount: Number(invoice.InvoiceDetails?.InvoiceTotalVatIncludedAmount || 0),
+          currency: invoice.InvoiceDetails?.CurrencyIdentifier || "",
+          transactionStartDate: invoice.MessageTransmissionDetails?.MessageTimeStamp || "",
+          transactionEndDate: invoice.MessageTransmissionDetails?.MessageTimeStamp || "",
+          sustainabilityMetrics: invoice.sustainabilityMetrics,
+          productName: invoice.InvoiceRows?.[0]?.ArticleName || "Unknown Product",
+        }));
+
+        allInvoices.push(...invoices);
+      }
+
+      const payload = {
+        productName,
+        productId,
+        invoices: allInvoices,
+      };
+
+      console.log("Submitting batch with payload:", {
+        productName,
+        productId,
+        invoices: allInvoices,
+      });
+      const createBatchRes = await fetch("/api/create-batch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log
+      if (!createBatchRes.ok) {
+        const errorText = await createBatchRes.text();
+        throw new Error(`Create batch failed: ${errorText}`);
+      }
+
+      const result = await createBatchRes.json();
+      // Save productId and batchId in localStorage
+      localStorage.setItem("createdProductId", result.productId);
+      localStorage.setItem("createdBatchId", result.batchId);
+      console.log("Batch created successfully:", result);
+    } catch (error: any) {
+      console.error("Error during batch submission:", error);
+      alert(`Error: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+
+  const handleSubmit = async () => {
+    try {
+      submitBatch(
+        transactions,
+        productName,
+        null,
+        setIsSubmitting
+      )
       // Navigate to success page or back to dashboard
       router.push("/dashboard/batches/success")
     } catch (error) {
@@ -277,7 +370,6 @@ export default function UploadPage() {
     }
 
     if (currentStepId === "review") {
-      console.log("📦 Transaction IDs:", transactions);
       return (
         <div aria-labelledby="review-heading">
           <h2 id="review-heading" className="sr-only">Review and Submit</h2>
