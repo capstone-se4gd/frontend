@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward login request to Flask middleware
-    console.log(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`);
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+    console.log(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
