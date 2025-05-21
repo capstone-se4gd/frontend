@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Calendar, Filter, Plus, Search } from "lucide-react"
 import { PrimaryButton } from "@/components/ui/primary-button"
@@ -11,94 +11,125 @@ import { Card, CardContent } from "@/components/ui/card"
 import { formatDate } from "@/lib/utils"
 
 // Mock batch data
-const MOCK_BATCHES = [
-  {
-    id: "batch-001",
-    name: "Wood Extraction Process",
-    status: "completed",
-    date: new Date(2023, 9, 15),
-    product: "Couch",
-    components: ["Water", "Electricity", "Wood"],
-    metrics: {
-      totalEmissions: "1,245 kg CO2e",
-      waterUsage: "3,500 liters",
-      energyConsumption: "780 kWh",
-    },
-  },
-  {
-    id: "batch-002",
-    name: "Textile Manufacturing",
-    status: "processing",
-    date: new Date(2023, 10, 5),
-    product: "Chair",
-    components: ["Cotton", "Dye", "Electricity"],
-    metrics: {
-      totalEmissions: "pending",
-      waterUsage: "pending",
-      energyConsumption: "pending",
-    },
-  },
-  {
-    id: "batch-003",
-    name: "Metal Processing",
-    status: "draft",
-    date: new Date(2023, 10, 10),
-    product: "Table",
-    components: ["Steel", "Electricity", "Water"],
-    metrics: {
-      totalEmissions: "draft",
-      waterUsage: "draft",
-      energyConsumption: "draft",
-    },
-  },
-  {
-    id: "batch-004",
-    name: "Plastic Components Production",
-    status: "completed",
-    date: new Date(2023, 8, 20),
-    product: "Storage Box",
-    components: ["Plastic", "Electricity"],
-    metrics: {
-      totalEmissions: "850 kg CO2e",
-      waterUsage: "1,200 liters",
-      energyConsumption: "450 kWh",
-    },
-  },
-  {
-    id: "batch-005",
-    name: "Glass Manufacturing",
-    status: "completed",
-    date: new Date(2023, 7, 5),
-    product: "Mirror",
-    components: ["Glass", "Electricity", "Water"],
-    metrics: {
-      totalEmissions: "920 kg CO2e",
-      waterUsage: "2,800 liters",
-      energyConsumption: "680 kWh",
-    },
-  },
-  {
-    id: "batch-006",
-    name: "Leather Processing",
-    status: "processing",
-    date: new Date(2023, 10, 15),
-    product: "Sofa",
-    components: ["Leather", "Water", "Chemicals"],
-    metrics: {
-      totalEmissions: "pending",
-      waterUsage: "pending",
-      energyConsumption: "pending",
-    },
-  },
-]
+// const MOCK_BATCHES = [
+//   {
+//     id: "batch-001",
+//     name: "Wood Extraction Process",
+//     status: "completed",
+//     date: new Date(2023, 9, 15),
+//     product: "Couch",
+//     components: ["Water", "Electricity", "Wood"],
+//     metrics: {
+//       totalEmissions: "1,245 kg CO2e",
+//       waterUsage: "3,500 liters",
+//       energyConsumption: "780 kWh",
+//     },
+//   },
+//   {
+//     id: "batch-002",
+//     name: "Textile Manufacturing",
+//     status: "processing",
+//     date: new Date(2023, 10, 5),
+//     product: "Chair",
+//     components: ["Cotton", "Dye", "Electricity"],
+//     metrics: {
+//       totalEmissions: "pending",
+//       waterUsage: "pending",
+//       energyConsumption: "pending",
+//     },
+//   },
+//   {
+//     id: "batch-003",
+//     name: "Metal Processing",
+//     status: "draft",
+//     date: new Date(2023, 10, 10),
+//     product: "Table",
+//     components: ["Steel", "Electricity", "Water"],
+//     metrics: {
+//       totalEmissions: "draft",
+//       waterUsage: "draft",
+//       energyConsumption: "draft",
+//     },
+//   },
+//   {
+//     id: "batch-004",
+//     name: "Plastic Components Production",
+//     status: "completed",
+//     date: new Date(2023, 8, 20),
+//     product: "Storage Box",
+//     components: ["Plastic", "Electricity"],
+//     metrics: {
+//       totalEmissions: "850 kg CO2e",
+//       waterUsage: "1,200 liters",
+//       energyConsumption: "450 kWh",
+//     },
+//   },
+//   {
+//     id: "batch-005",
+//     name: "Glass Manufacturing",
+//     status: "completed",
+//     date: new Date(2023, 7, 5),
+//     product: "Mirror",
+//     components: ["Glass", "Electricity", "Water"],
+//     metrics: {
+//       totalEmissions: "920 kg CO2e",
+//       waterUsage: "2,800 liters",
+//       energyConsumption: "680 kWh",
+//     },
+//   },
+//   {
+//     id: "batch-006",
+//     name: "Leather Processing",
+//     status: "processing",
+//     date: new Date(2023, 10, 15),
+//     product: "Sofa",
+//     components: ["Leather", "Water", "Chemicals"],
+//     metrics: {
+//       totalEmissions: "pending",
+//       waterUsage: "pending",
+//       energyConsumption: "pending",
+//     },
+//   },
+// ]
 
 export default function BatchesPage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
-  const [batches, setBatches] = useState(MOCK_BATCHES)
-  const [filteredBatches, setFilteredBatches] = useState(MOCK_BATCHES)
+  const [batches, setBatches] = useState<any[]>([])
+  const [filteredBatches, setFilteredBatches] = useState<any[]>([])
   const [showFilters, setShowFilters] = useState(false)
+
+  useEffect(() => {
+    const fetchBatches = async () => {
+      const token = localStorage.getItem("token")
+      if (!token) return
+
+      try {
+        const response = await fetch("/api/batches", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        })
+
+        const data = await response.json()
+        console.log("✅ Fetched data:", data)
+
+        if (!Array.isArray(data.batches)) {
+          console.error("❌ `batches` is not an array:", data)
+          return
+        }
+
+        setBatches(data.batches)
+        setFilteredBatches(data.batches)
+      } catch (error) {
+        console.error("Error fetching batches:", error)
+      }
+    }
+
+    fetchBatches()
+  }, [])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -116,9 +147,11 @@ export default function BatchesPage() {
     if (query) {
       filtered = filtered.filter(
         (batch) =>
-          batch.name.toLowerCase().includes(query.toLowerCase()) ||
-          batch.product.toLowerCase().includes(query.toLowerCase()) ||
-          batch.components.some((component) => component.toLowerCase().includes(query.toLowerCase())),
+          batch.name?.toLowerCase().includes(query.toLowerCase()) ||
+          batch.product?.toLowerCase().includes(query.toLowerCase()) ||
+          batch.components?.some((component: string) =>
+            component.toLowerCase().includes(query.toLowerCase())
+          )
       )
     }
 
@@ -184,8 +217,8 @@ export default function BatchesPage() {
               </div>
 
               <div className="flex gap-2">
-                <OutlineButton 
-                  onClick={() => setShowFilters(!showFilters)} 
+                <OutlineButton
+                  onClick={() => setShowFilters(!showFilters)}
                   aria-expanded={showFilters}
                   aria-controls="filters-panel"
                 >
@@ -199,8 +232,8 @@ export default function BatchesPage() {
               <div id="filters-panel" className="mb-6 p-4 bg-gray-50 rounded-lg" role="region" aria-labelledby="filter-heading">
                 <h3 id="filter-heading" className="text-sm font-medium mb-3">Filter by Status</h3>
                 <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="filter-heading">
-                  <OutlineButton 
-                    onClick={() => handleStatusFilter(null)} 
+                  <OutlineButton
+                    onClick={() => handleStatusFilter(null)}
                     className={!statusFilter ? "bg-gray-100" : ""}
                     aria-pressed={!statusFilter}
                     aria-checked={!statusFilter}
@@ -252,39 +285,33 @@ export default function BatchesPage() {
                     filteredBatches.map((batch) => (
                       <tr key={batch.id} className="border-b hover:bg-gray-50">
                         <td className="py-3 px-4">
-                          <div className="font-medium">{batch.name}</div>
-                          {batch.status === "completed" && (
-                            <div className="text-xs text-gray-500 mt-1 hidden sm:block">
-                              Emissions: {batch.metrics.totalEmissions}
-                            </div>
-                          )}
+                          <div className="font-medium">{batch.id}</div>
                         </td>
-                        <td className="py-3 px-4">{batch.product}</td>
+                        <td className="py-3 px-4">{batch.product_name || "-"}</td>
                         <td className="py-3 px-4 hidden md:table-cell">
-                          <div className="flex flex-wrap gap-1">
-                            {batch.components.map((component) => (
-                              <Badge key={component} variant="outline" className="bg-gray-100">
-                                {component}
-                              </Badge>
-                            ))}
-                          </div>
+                          <a
+                            href={batch.information_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline text-sm"
+                          >
+                            View Info
+                          </a>
                         </td>
                         <td className="py-3 px-4 hidden sm:table-cell">
                           <div className="flex items-center">
                             <Calendar className="w-4 h-4 mr-2 text-gray-400" aria-hidden="true" />
-                            <span>{formatDate(batch.date)}</span>
+                            <span>{new Date(batch.created_at).toLocaleDateString()}</span>
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className={getStatusColor(batch.status)}>
-                            {batch.status.charAt(0).toUpperCase() + batch.status.slice(1)}
-                          </Badge>
+                          <Badge className="bg-gray-200 text-gray-700">Completed</Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <button
                             onClick={() => handleViewBatch(batch.id)}
                             className="text-[#12b784] hover:text-[#0e9e70] font-medium"
-                            aria-label={`View details for ${batch.name}`}
+                            aria-label={`View details for ${batch.id}`}
                           >
                             View
                           </button>
@@ -299,6 +326,7 @@ export default function BatchesPage() {
                     </tr>
                   )}
                 </tbody>
+
               </table>
             </div>
           </CardContent>
@@ -338,24 +366,24 @@ export default function BatchesPage() {
               <h2 id="activity-heading" className="text-lg font-medium mb-4">Recent Activity</h2>
               <ul className="space-y-4">
                 {batches
-                  .sort((a, b) => b.date.getTime() - a.date.getTime())
+                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                   .slice(0, 4)
                   .map((batch) => (
                     <li key={batch.id} className="flex items-start py-2 border-b last:border-0">
                       <div
-                        className={`w-2 h-2 mt-1.5 rounded-full mr-3 ${
-                          batch.status === "completed"
-                            ? "bg-green-500"
-                            : batch.status === "processing"
-                              ? "bg-blue-500"
-                              : "bg-gray-500"
-                        }`}
+                        className={`w-2 h-2 mt-1.5 rounded-full mr-3 ${batch.status === "completed"
+                          ? "bg-green-500"
+                          : batch.status === "processing"
+                            ? "bg-blue-500"
+                            : "bg-gray-500"
+                          }`}
                         aria-hidden="true"
                       ></div>
                       <div className="flex-1">
                         <div className="font-medium">{batch.name}</div>
                         <div className="text-sm text-gray-500">
-                          {batch.status.charAt(0).toUpperCase() + batch.status.slice(1)} • {formatDate(batch.date)}
+                          Completed • {formatDate(new Date(batch.created_at))}
+                          {/* {batch.status.charAt(0).toUpperCase() + batch.status.slice(1)} • {formatDate(batch.date)} */}
                         </div>
                       </div>
                     </li>

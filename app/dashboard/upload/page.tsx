@@ -231,12 +231,8 @@ export default function UploadPage() {
         productId,
         invoices: allInvoices,
       };
+      console.log("📦 Final payload:", JSON.stringify(payload, null, 2));
 
-      console.log("Submitting batch with payload:", {
-        productName,
-        productId,
-        invoices: allInvoices,
-      });
       const createBatchRes = await fetch("/api/create-batch", {
         method: "POST",
         headers: {
@@ -245,7 +241,7 @@ export default function UploadPage() {
         },
         body: JSON.stringify(payload),
       });
-      console.log
+
       if (!createBatchRes.ok) {
         const errorText = await createBatchRes.text();
         throw new Error(`Create batch failed: ${errorText}`);

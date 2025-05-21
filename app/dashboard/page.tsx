@@ -9,47 +9,49 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/utils"
 
-// Mock batch data
-const MOCK_BATCHES = [
-  {
-    id: "batch-001",
-    name: "Wood Extraction Process",
-    status: "completed",
-    date: new Date(2023, 9, 15),
-    product: "Couch",
-    components: ["Water", "Electricity", "Wood"],
-  },
-  {
-    id: "batch-002",
-    name: "Textile Manufacturing",
-    status: "processing",
-    date: new Date(2023, 10, 5),
-    product: "Chair",
-    components: ["Cotton", "Dye", "Electricity"],
-  },
-  {
-    id: "batch-003",
-    name: "Metal Processing",
-    status: "draft",
-    date: new Date(2023, 10, 10),
-    product: "Table",
-    components: ["Steel", "Electricity", "Water"],
-  },
-]
-
 export default function DashboardPage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
-  const [recentBatches, setRecentBatches] = useState(MOCK_BATCHES)
-  const [filteredBatches, setFilteredBatches] = useState(MOCK_BATCHES)
+  const [recentBatches, setRecentBatches] = useState<any[]>([])
+  const [filteredBatches, setFilteredBatches] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    // Get user from localStorage
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
+
+    const token = localStorage.getItem("token")
+    if (!token) return
+
+    const fetchBatches = async () => {
+      try {
+        const res = await fetch("/api/batches", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        })
+        const data = await res.json()
+        if (data?.batches) {
+          const mapped = data.batches.map((b: any) => ({
+            id: b.id,
+            product: b.product_name,
+            components: [b.information_url],
+            date: new Date(b.created_at),
+            status: "completed", // default placeholder
+            name: b.id,
+          }))
+          setRecentBatches(mapped)
+          setFilteredBatches(mapped)
+        }
+      } catch (err) {
+        console.error("Failed to fetch batches", err)
+      }
+    }
+
+    fetchBatches()
   }, [])
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export default function DashboardPage() {
           (batch) =>
             batch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             batch.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            batch.components.some((component) => component.toLowerCase().includes(searchQuery.toLowerCase())),
+            batch.components.some((c: string) => c.toLowerCase().includes(searchQuery.toLowerCase())),
         ),
       )
     } else {
@@ -91,7 +93,7 @@ export default function DashboardPage() {
   return (
     <main className="max-w-7xl mx-auto" aria-labelledby="dashboard-heading">
       <h1 id="dashboard-heading" className="sr-only">Dashboard</h1>
-      
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h2 className="text-3xl font-bold">Welcome, {user?.name || "User"}!</h2>
@@ -168,9 +170,9 @@ export default function DashboardPage() {
           <table id="batches-table" className="w-full" aria-label="Recent batches">
             <thead>
               <tr className="border-b">
-                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
+                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Batch ID</th>
                 <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Product</th>
-                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Components</th>
+                <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Info URL</th>
                 <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
                 <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
                 <th scope="col" className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
@@ -180,16 +182,10 @@ export default function DashboardPage() {
               {filteredBatches.length > 0 ? (
                 filteredBatches.map((batch) => (
                   <tr key={batch.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">{batch.name}</td>
+                    <td className="py-3 px-4">{batch.id}</td>
                     <td className="py-3 px-4">{batch.product}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex flex-wrap gap-1">
-                        {batch.components.map((component) => (
-                          <Badge key={component} variant="outline" className="bg-gray-100">
-                            {component}
-                          </Badge>
-                        ))}
-                      </div>
+                    <td className="py-3 px-4 text-sm text-blue-600 truncate max-w-xs">
+                      {batch.components[0]}
                     </td>
                     <td className="py-3 px-4">{formatDate(batch.date)}</td>
                     <td className="py-3 px-4">
@@ -201,7 +197,6 @@ export default function DashboardPage() {
                       <button
                         onClick={() => handleViewBatch(batch.id)}
                         className="text-[#12b784] hover:text-[#0e9e70] font-medium"
-                        aria-label={`View details for ${batch.name}`}
                       >
                         View
                       </button>
@@ -211,7 +206,7 @@ export default function DashboardPage() {
               ) : (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-gray-500">
-                    No batches found matching your search.
+                    No batches found.
                   </td>
                 </tr>
               )}
