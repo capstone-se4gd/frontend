@@ -53,7 +53,7 @@ export default function SuccessPage() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <PrimaryButton
           disabled={!batchId}
-          onClick={() => router.push(`/dashboard/batches/${batchId}`)}
+          onClick={() => router.push(`/batches/${batchId}`)}
         >
           View Batch Details
         </PrimaryButton>

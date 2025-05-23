@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Calendar, Filter, Plus, Search } from "lucide-react"
+import { Calendar, Filter, Plus, Search, Eye } from "lucide-react"
 import { PrimaryButton } from "@/components/ui/primary-button"
 import { OutlineButton } from "@/components/ui/outline-button"
 import { Input } from "@/components/ui/input"
@@ -11,86 +11,72 @@ import { Card, CardContent } from "@/components/ui/card"
 import { formatDate } from "@/lib/utils"
 
 // Mock batch data
-// const MOCK_BATCHES = [
-//   {
-//     id: "batch-001",
-//     name: "Wood Extraction Process",
-//     status: "completed",
-//     date: new Date(2023, 9, 15),
-//     product: "Couch",
-//     components: ["Water", "Electricity", "Wood"],
-//     metrics: {
-//       totalEmissions: "1,245 kg CO2e",
-//       waterUsage: "3,500 liters",
-//       energyConsumption: "780 kWh",
-//     },
-//   },
-//   {
-//     id: "batch-002",
-//     name: "Textile Manufacturing",
-//     status: "processing",
-//     date: new Date(2023, 10, 5),
-//     product: "Chair",
-//     components: ["Cotton", "Dye", "Electricity"],
-//     metrics: {
-//       totalEmissions: "pending",
-//       waterUsage: "pending",
-//       energyConsumption: "pending",
-//     },
-//   },
-//   {
-//     id: "batch-003",
-//     name: "Metal Processing",
-//     status: "draft",
-//     date: new Date(2023, 10, 10),
-//     product: "Table",
-//     components: ["Steel", "Electricity", "Water"],
-//     metrics: {
-//       totalEmissions: "draft",
-//       waterUsage: "draft",
-//       energyConsumption: "draft",
-//     },
-//   },
-//   {
-//     id: "batch-004",
-//     name: "Plastic Components Production",
-//     status: "completed",
-//     date: new Date(2023, 8, 20),
-//     product: "Storage Box",
-//     components: ["Plastic", "Electricity"],
-//     metrics: {
-//       totalEmissions: "850 kg CO2e",
-//       waterUsage: "1,200 liters",
-//       energyConsumption: "450 kWh",
-//     },
-//   },
-//   {
-//     id: "batch-005",
-//     name: "Glass Manufacturing",
-//     status: "completed",
-//     date: new Date(2023, 7, 5),
-//     product: "Mirror",
-//     components: ["Glass", "Electricity", "Water"],
-//     metrics: {
-//       totalEmissions: "920 kg CO2e",
-//       waterUsage: "2,800 liters",
-//       energyConsumption: "680 kWh",
-//     },
-//   },
-//   {
-//     id: "batch-006",
-//     name: "Leather Processing",
-//     status: "processing",
-//     date: new Date(2023, 10, 15),
-//     product: "Sofa",
-//     components: ["Leather", "Water", "Chemicals"],
-//     metrics: {
-//       totalEmissions: "pending",
-//       waterUsage: "pending",
-//       energyConsumption: "pending",
-//     },
-//   },
-// ]
+const MOCK_BATCHES: Array<{
+  id: string
+  name: string
+  status: "completed" | "processing" | "draft"
+  date: Date
+  product: string
+  components: string[]
+  metrics: {
+    totalEmissions: string
+    waterUsage: string
+    energyConsumption: string
+  }
+}> = [
+  {
+    id: "batch-001",
+    name: "Wood Extraction Process",
+    status: "completed",
+    date: new Date(2023, 9, 15),
+    product: "Couch",
+    components: ["Water", "Electricity", "Wood"],
+    metrics: {
+      totalEmissions: "1,245 kg CO2e",
+      waterUsage: "3,500 liters",
+      energyConsumption: "780 kWh",
+    },
+  },
+  {
+    id: "batch-002",
+    name: "Textile Manufacturing",
+    status: "processing",
+    date: new Date(2023, 10, 5),
+    product: "Chair",
+    components: ["Cotton", "Dye", "Electricity"],
+    metrics: {
+      totalEmissions: "pending",
+      waterUsage: "pending",
+      energyConsumption: "pending",
+    },
+  },
+  {
+    id: "batch-003",
+    name: "Metal Processing",
+    status: "draft",
+    date: new Date(2023, 10, 10),
+    product: "Table",
+    components: ["Steel", "Electricity", "Water"],
+    metrics: {
+      totalEmissions: "draft",
+      waterUsage: "draft",
+      energyConsumption: "draft",
+    },
+  },
+  {
+    id: "batch-004",
+    name: "Plastic Components Production",
+    status: "completed",
+    date: new Date(2023, 8, 20),
+    product: "Storage Box",
+    components: ["Plastic", "Electricity"],
+    metrics: {
+      totalEmissions: "850 kg CO2e",
+      waterUsage: "1,200 liters",
+      energyConsumption: "450 kWh",
+    },
+  },
+]
 
 export default function BatchesPage() {
   const router = useRouter()
@@ -167,31 +153,18 @@ export default function BatchesPage() {
   }
 
   const handleViewBatch = (batchId: string) => {
-    router.push(`/dashboard/batches/${batchId}`)
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800"
-      case "processing":
-        return "bg-blue-100 text-blue-800"
-      case "draft":
-        return "bg-gray-100 text-gray-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
+    router.push(`/batches/${batchId}`)
   }
 
   return (
     <main className="max-w-7xl mx-auto" aria-labelledby="batches-heading">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 id="batches-heading" className="text-3xl font-bold">Batches</h1>
-          <p className="text-gray-500 mt-1">Manage your sustainability data batches</p>
+          <h1 id="batches-heading" className="text-2xl font-bold">Batches</h1>
+          <p className="text-md text-gray-500 mt-1">Manage your sustainability data batches</p>
         </div>
         <div className="mt-4 md:mt-0">
-          <PrimaryButton onClick={handleNewBatch} aria-label="Create new batch">
+          <PrimaryButton onClick={handleNewBatch} size="large" aria-label="Create new batch">
             <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
             New Batch
           </PrimaryButton>
@@ -272,18 +245,16 @@ export default function BatchesPage() {
               <table id="batches-table" className="w-full" aria-label="Batches">
                 <thead>
                   <tr className="border-b">
-                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
-                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Product</th>
-                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500 hidden md:table-cell">Components</th>
+                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Product Name</th>
                     <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">Date</th>
                     <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                    <th scope="col" className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                    <th scope="col" className="text-center py-3 px-4 font-medium text-gray-500">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredBatches.length > 0 ? (
                     filteredBatches.map((batch) => (
-                      <tr key={batch.id} className="border-b hover:bg-gray-50">
+                      <tr key={batch.id} className="border-b hover:bg-gray-50 text-sm">
                         <td className="py-3 px-4">
                           <div className="font-medium">{batch.id}</div>
                         </td>
@@ -305,17 +276,19 @@ export default function BatchesPage() {
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge className="bg-gray-200 text-gray-700">Completed</Badge>
+                          <Badge status={batch.status}>
+                            {batch.status.charAt(0).toUpperCase() + batch.status.slice(1)}
+                          </Badge>
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3 px-4 text-center">
                           <button
                             onClick={() => handleViewBatch(batch.id)}
-                            className="text-[#12b784] hover:text-[#0e9e70] font-medium"
-                            aria-label={`View details for ${batch.id}`}
+                            className="text-gray-500 hover:text-gray-700 font-medium"
+                            aria-label={`View details for ${batch.name}`}
                           >
-                            View
+                            <Eye className="w-5 h-5 cursor-pointer" aria-hidden="true" />
                           </button>
-                        </td>
+                    </td>
                       </tr>
                     ))
                   ) : (
@@ -338,7 +311,7 @@ export default function BatchesPage() {
           <Card>
             <CardContent className="p-6 my-4">
               <h2 id="statistics-heading" className="text-lg font-medium mb-4">Batch Statistics</h2>
-              <dl className="space-y-4">
+              <dl className="space-y-4 text-sm">
                 <div className="flex justify-between py-2 border-b">
                   <dt>Total Batches</dt>
                   <dd className="font-medium">{batches.length}</dd>
@@ -364,7 +337,7 @@ export default function BatchesPage() {
           <Card>
             <CardContent className="p-6 my-4">
               <h2 id="activity-heading" className="text-lg font-medium mb-4">Recent Activity</h2>
-              <ul className="space-y-4">
+              <ul className="space-y-4 text-sm">
                 {batches
                   .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                   .slice(0, 4)

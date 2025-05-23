@@ -13,7 +13,6 @@ const MOCK_REPORTS = [
   {
     id: "rep-001",
     title: "Middleware specification: Endpoints usage",
-    type: "documentation",
     date: new Date(2025, 5, 16),
     status: "completed",
     link: "https://drive.google.com/file/d/1JV3LzBGU_0x1ije3d2fexsPBXg3tlZNA/view?usp=sharing",
@@ -22,7 +21,6 @@ const MOCK_REPORTS = [
   {
     id: "rep-002",
     title: "Microsoft Sustainability Manager: Emission calculations",
-    type: "documentation",
     date: new Date(2025, 5, 16),
     status: "completed",
     link: "https://drive.google.com/file/d/133d67bFbJ9EHBqSZzYIhhfYYIg5QOx3W/view?usp=sharing",
@@ -31,14 +29,12 @@ const MOCK_REPORTS = [
   {
     id: "rep-003",
     title: "Microsoft Sustainability Manager: Account Setup",
-    type: "process",
     date: new Date(2023, 10, 10),
     status: "processing",
   },
   {
     id: "rep-004",
     title: "Microsoft Sustainability Manager: Data Ingestion",
-    type: "annual",
     date: new Date(2023, 11, 20),
     status: "draft",
 
@@ -68,9 +64,7 @@ export default function ReportsPage() {
       filtered = filtered.filter((report) => report.title.toLowerCase().includes(query.toLowerCase()))
     }
 
-    if (type) {
-      filtered = filtered.filter((report) => report.type === type)
-    }
+
 
     setFilteredReports(filtered)
   }
@@ -88,25 +82,12 @@ export default function ReportsPage() {
     }
   }
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case "quarterly":
-        return "Quarterly Report"
-      case "annual":
-        return "Annual Report"
-      case "process":
-        return "Process Analysis"
-      default:
-        return type.charAt(0).toUpperCase() + type.slice(1)
-    }
-  }
-
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">User Manual</h1>
-          <p className="text-gray-500 mt-1">View useful documentation to guide users through the process</p>
+          <h1 className="text-2xl font-bold">User Guide</h1>
+          <p className="text-md text-gray-500 mt-1">View useful documentation on how to use Middleware.</p>
         </div>
       </div>
 
@@ -115,7 +96,7 @@ export default function ReportsPage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search reports..."
+              placeholder="Search manual..."
               className="pl-10 w-full"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
@@ -127,21 +108,18 @@ export default function ReportsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Report</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Type</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500">User Manual</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                <th className="text-center py-3 px-4 font-medium text-gray-500">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredReports.length > 0 ? (
                 filteredReports.map((report) => (
-                  <tr key={report.id} className="border-b hover:bg-gray-50">
+                  <tr key={report.id} className="border-b hover:bg-gray-50 text-sm">
                     <td className="py-3 px-4">
                       <div className="font-medium">{report.title}</div>
                     </td>
-                    <td className="py-3 px-4">{getTypeLabel(report.type)}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2 text-gray-400" />
@@ -149,21 +127,12 @@ export default function ReportsPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <Badge className={getStatusColor(report.status)}>
-                        {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex items-center justify-center">
                         <a href={report.link} target="_blank">                        
-                        <button className="p-1 text-gray-500 hover:text-gray-700" title="Download">
+                        <button className="text-center text-gray-500 hover:text-gray-700" title="Download">
                           <Download className="w-5 h-5" />
                         </button>
                         </a>
-
-                        <button className="p-1 text-gray-500 hover:text-gray-700" title="Print">
-                          <Printer className="w-5 h-5" />
-                        </button>
                       </div>
                     </td>
                   </tr>

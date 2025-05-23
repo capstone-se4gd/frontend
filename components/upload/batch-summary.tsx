@@ -135,7 +135,7 @@ export function BatchSummary({
       </Card>
 
       <div className="flex flex-col items-center space-y-4 mt-8">
-        <PrimaryButton onClick={isSubmitting ? undefined : onSubmit} className={`w-[1/2] py-6 text-lg ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}>
+        <PrimaryButton onClick={isSubmitting ? undefined : onSubmit} size="large" className={`text-md ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}>
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

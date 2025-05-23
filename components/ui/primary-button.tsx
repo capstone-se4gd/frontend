@@ -7,21 +7,28 @@ interface PrimaryButtonProps {
   onClick?: () => void
   size?: "default" | "large"
   className?: string
+  disabled?: boolean
   type?: "button" | "submit" | "reset"
-  disabled?: boolean,
-  ariaLabel?: string
 }
 
-export function PrimaryButton({ children, onClick, size = "default", className = "", type = "button", disabled = false, ariaLabel }: PrimaryButtonProps) {
-  const sizeClasses = "px-8 py-4 text-lg flex wrap items-center"
+export function PrimaryButton({
+  children,
+  onClick,
+  size = "default",
+  className = "",
+  disabled = false,
+  type = "button",
+}: PrimaryButtonProps) {
+  const sizeClasses = size === "large" ? "px-5 py-2.5 text-md" : "px-4 py-2 text-sm"
 
   return (
     <button
-      className={`bg-[#12b784] text-white font-medium rounded-full hover:bg-[#12b784]/90 transition-colors ${sizeClasses} ${className} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-      onClick={onClick}
       type={type}
+      className={`bg-[#1BA177] text-white font-medium rounded-lg hover:bg-[#12b784]/90 transition-colors inline-flex items-center justify-center ${sizeClasses} ${className} ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
+      onClick={onClick}
       disabled={disabled}
-      aria-label={ariaLabel}
     >
       {children}
     </button>
