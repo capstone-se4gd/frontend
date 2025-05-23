@@ -1,66 +1,80 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { CheckCircle2 } from "lucide-react"
-import { PrimaryButton } from "@/components/ui/primary-button"
-import { OutlineButton } from "@/components/ui/outline-button"
-import { Card, CardContent } from "@/components/ui/card"
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CheckCircle } from "lucide-react";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SuccessPage() {
-  const router = useRouter()
-  const [batchId, setBatchId] = useState<string | null>(null)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [batchInfo, setBatchInfo] = useState({
+    batchId: "",
+    productId: "",
+  });
 
   useEffect(() => {
-    const storedBatchId = localStorage.getItem("createdBatchId")
-    setBatchId(storedBatchId)
-  }, [])
+    // Get batch info from URL params or localStorage if not available
+    const batchId = searchParams.get("batchId") || localStorage.getItem("createdBatchId") || "";
+    const productId = searchParams.get("productId") || localStorage.getItem("createdProductId") || "";
+    
+    setBatchInfo({
+      batchId,
+      productId,
+    });
+  }, [searchParams]);
 
   return (
-    <div className="max-w-3xl mx-auto text-center">
-      <div className="mb-8 flex justify-center">
-        <CheckCircle2 className="h-24 w-24 text-[#12b784]" />
-      </div>
-
-      <h1 className="text-3xl font-bold mb-4">Batch Submitted Successfully!</h1>
-      <p className="text-gray-600 mb-8">
-        Your sustainability data has been processed and is now available in the system.
-      </p>
-
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="flex justify-between py-2 border-b">
-              <span className="font-medium">Batch ID:</span>
-              <span>{batchId || "Loading..."}</span>
+    <main className="max-w-4xl mx-auto py-12">
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="text-center pb-0">
+          <div className="flex justify-center mb-6">
+            <CheckCircle className="h-20 w-20 text-green-500" />
+          </div>
+          <CardTitle className="text-3xl font-bold text-center">
+            Batch Created Successfully!
+          </CardTitle>
+          <p className="text-gray-600 mt-2">
+            Your sustainability data has been uploaded and processed.
+          </p>
+        </CardHeader>
+        
+        <CardContent className="pt-8 pb-8">
+          <div className="bg-gray-50 p-6 rounded-lg mb-8">
+            <h2 className="text-lg font-semibold mb-4">Batch Information</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500">Batch ID</p>
+                <p className="text-base font-medium">{batchInfo.batchId}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-500">Product ID</p>
+                <p className="text-base font-medium">{batchInfo.productId}</p>
+              </div>
             </div>
-            <div className="flex justify-between py-2 border-b">
-              <span className="font-medium">Submission Date:</span>
-              <span>{new Date().toLocaleDateString()}</span>
-            </div>
-            <div className="flex justify-between py-2 border-b">
-              <span className="font-medium">Status:</span>
-              <span className="text-[#12b784] font-medium">Processed</span>
-            </div>
-            <div className="flex justify-between py-2">
-              <span className="font-medium">MSM Integration:</span>
-              <span className="text-blue-600 font-medium">Pending</span>
-            </div>
+          </div>
+          
+          <div className="flex justify-center gap-3">
+            {/* Button to see batch details */}
+            <PrimaryButton 
+              onClick={() => router.push(`/dashboard/batches/${batchInfo.batchId}`)}
+              className="px-8 py-4 mr-4"
+            >
+              View Batch Details
+            </PrimaryButton>
+            {/* Button to go back to batches list */}
+            <PrimaryButton 
+              onClick={() => router.push("/dashboard/batches")}
+              className="px-8 py-4"
+            >
+              Go to Batches
+            </PrimaryButton>
           </div>
         </CardContent>
       </Card>
-
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <PrimaryButton
-          disabled={!batchId}
-          onClick={() => router.push(`/dashboard/batches/${batchId}`)}
-        >
-          View Batch Details
-        </PrimaryButton>
-        <OutlineButton onClick={() => router.push("/dashboard")}>
-          Return to Dashboard
-        </OutlineButton>
-      </div>
-    </div>
-  )
+    </main>
+  );
 }

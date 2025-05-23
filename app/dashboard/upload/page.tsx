@@ -1,14 +1,46 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Plus, X } from "lucide-react"
 import { PrimaryButton } from "@/components/ui/primary-button"
 import { OutlineButton } from "@/components/ui/outline-button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Stepper } from "@/components/ui/stepper"
 import { FileUploader } from "@/components/upload/file-uploader"
 import { BatchSummary } from "@/components/upload/batch-summary"
+
+// Define product interface
+interface Product {
+  productId: string;
+  productName: string;
+}
+
+interface Invoice {
+  id: string
+  facility: string
+  organizationalUnit: string
+  url: string
+  subCategory: string
+  invoiceNumber: string
+  invoiceDate: string
+  emissionsArePerUnit: string
+  quantityNeededPerUnit: number
+  unitsBought: number
+  totalAmount: number
+  currency: string
+  transactionStartDate: string
+  transactionEndDate: string
+  sustainabilityMetrics: MetricItem[]
+  productName: string
+}
+
+interface MetricItem {
+  name: string;
+  description: string;
+  unit: string;
+  value: number;
+}
 
 const STEPS = [
   { id: "product", title: "Product Information" },
@@ -54,6 +86,10 @@ export default function UploadPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [batchName, setBatchName] = useState("")
   const [productName, setProductName] = useState("")
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
+  const [isCreatingNewProduct, setIsCreatingNewProduct] = useState(false)
+  const [existingProducts, setExistingProducts] = useState<Product[]>([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
   const [productCategory, setProductCategory] = useState("")
   const [productDescription, setProductDescription] = useState("")
   const [files, setFiles] = useState<{ [key: string]: File[] }>({
@@ -65,6 +101,100 @@ export default function UploadPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [transactions, setTransactions] = useState<Record<string, string>>({})
+  // Add a new state variable for processing status
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  // Add this state to track processed files metadata
+  const [processedFilesMetadata, setProcessedFilesMetadata] = useState<{
+    [key: string]: { names: string[]; sizes: number[]; lastModified: number[] }
+  }>({});
+
+  // Fetch existing products when component mounts
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoadingProducts(true)
+        const token = localStorage.getItem("token")
+        
+        if (!token) {
+          console.error("No authentication token found")
+          setLoadingProducts(false)
+          return
+        }
+        
+        const response = await fetch('/api/products', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch products')
+        }
+        
+        const data: Product[] = await response.json()
+        setExistingProducts(data)
+        
+        // If products exist, default to select mode, otherwise default to create mode
+        if (data.length > 0) {
+          setIsCreatingNewProduct(false)
+          setSelectedProductId(data[0].productId)
+          setProductName(data[0].productName)
+        } else {
+          setIsCreatingNewProduct(true)
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      } finally {
+        setLoadingProducts(false)
+      }
+    }
+    
+    fetchProducts()
+  }, [])
+  
+  // Handle product selection
+  const handleProductSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value
+    
+    if (value === "new") {
+      // User selected "Create new product"
+      setIsCreatingNewProduct(true)
+      setSelectedProductId(null)
+      setProductName("")
+    } else {
+      // User selected an existing product
+      setIsCreatingNewProduct(false)
+      setSelectedProductId(value)
+      
+      // Set the product name based on the selected ID
+      const selectedProduct = existingProducts.find(p => p.productId === value)
+      if (selectedProduct) {
+        setProductName(selectedProduct.productName)
+      }
+    }
+  }
+  
+  // Toggle to create new product mode
+  const handleCreateNewProduct = () => {
+    setIsCreatingNewProduct(true)
+    setSelectedProductId(null)
+    setProductName("")
+  }
+  
+  // Cancel creating new product
+  const handleCancelNewProduct = () => {
+    setIsCreatingNewProduct(false)
+    
+    // If there are products, reset to first one, otherwise stay in creation mode
+    if (existingProducts.length > 0) {
+      const firstProduct = existingProducts[0]
+      setSelectedProductId(firstProduct.productId)
+      setProductName(firstProduct.productName)
+    } else {
+      setIsCreatingNewProduct(true)
+    }
+  }
 
   // Mock metrics data that would be extracted from uploaded files
   const [extractedMetrics] = useState({
@@ -94,7 +224,7 @@ export default function UploadPage() {
 
     // Validation for the "product" step
     if (stepId === "product") {
-      if (!batchName || !productName || !productCategory || !productDescription) {
+      if (!productName || !productDescription) {
         alert("Please complete all product information fields before proceeding.");
         return;
       }
@@ -108,6 +238,25 @@ export default function UploadPage() {
 
       // If there are no files, skip upload and go to next step
       if (!stepFiles || stepFiles.length === 0) {
+        setCurrentStep(currentStep + 1);
+        window.scrollTo(0, 0);
+        return;
+      }
+
+      // Check if files have already been processed and haven't changed
+      const hasTransaction = transactions[stepId];
+      const previousMetadata = processedFilesMetadata[stepId];
+      const currentFilesMetadata = {
+        names: stepFiles.map(f => f.name),
+        sizes: stepFiles.map(f => f.size),
+        lastModified: stepFiles.map(f => f.lastModified)
+      };
+      
+      const filesUnchanged = hasTransaction && previousMetadata && 
+        JSON.stringify(previousMetadata) === JSON.stringify(currentFilesMetadata);
+      
+      if (filesUnchanged) {
+        console.log(`Files for ${stepId} already processed, skipping upload`);
         setCurrentStep(currentStep + 1);
         window.scrollTo(0, 0);
         return;
@@ -127,6 +276,9 @@ export default function UploadPage() {
       }
 
       try {
+        // Show loading backdrop while processing
+        setIsProcessing(true);
+
         const response = await fetch("/api/process-invoices", {
           method: "POST",
           headers: {
@@ -143,12 +295,18 @@ export default function UploadPage() {
           return;
         } else {
           console.log("Success", data);
-          // Optionally update any state here
 
           if (data.transaction_id) {
+            // Save transaction ID
             setTransactions((prev) => ({
               ...prev,
               [stepId]: data.transaction_id,
+            }));
+            
+            // Store metadata of processed files
+            setProcessedFilesMetadata(prev => ({
+              ...prev,
+              [stepId]: currentFilesMetadata
             }));
           }
         }
@@ -156,6 +314,9 @@ export default function UploadPage() {
         console.error("Network error during file upload", error);
         alert("Something went wrong during the upload. Please try again.");
         return;
+      } finally {
+        // Hide loading backdrop when done
+        setIsProcessing(false);
       }
     }
 
@@ -174,7 +335,7 @@ export default function UploadPage() {
   }
 
   async function submitBatch(
-    transactions: Record<string, string>,
+    invoices: Invoice[],
     productName: string,
     productId: string | null,
     setIsSubmitting: (value: boolean) => void,
@@ -186,50 +347,14 @@ export default function UploadPage() {
     if (!token) {
       alert("No token found. Please log in again.");
       setIsSubmitting(false);
-      return;
+      return null;
     }
 
     try {
-      const allInvoices: any[] = [];
-
-      for (const id of Object.values(transactions)) {
-        const res = await fetch(`/api/transaction/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error(`Failed to fetch transaction with id: ${id}`);
-        }
-
-        const data = await res.json();
-        console.log(data);
-        const invoices = data.result.map((invoice: any) => ({
-          facility: invoice.SellerPartyDetails?.SellerOrganisationName || "Unknown Facility",
-          organizationalUnit: invoice.BuyerPartyDetails?.BuyerOrganisationName || "Unknown OU",
-          url: invoice.other_url || "",
-          subCategory: invoice.InvoiceDetails?.InvoiceTypeCode || "",
-          invoiceNumber: invoice.InvoiceDetails?.InvoiceNumber || "",
-          invoiceDate: invoice.InvoiceDetails?.InvoiceDate || "",
-          emissionsArePerUnit: "false",
-          quantityNeededPerUnit: 0,
-          unitsBought: invoice.InvoiceRows?.reduce((sum: number, row: any) => sum + Number(row.DeliveredQuantity || 0), 0) || 0,
-          totalAmount: Number(invoice.InvoiceDetails?.InvoiceTotalVatIncludedAmount || 0),
-          currency: invoice.InvoiceDetails?.CurrencyIdentifier || "",
-          transactionStartDate: invoice.MessageTransmissionDetails?.MessageTimeStamp || "",
-          transactionEndDate: invoice.MessageTransmissionDetails?.MessageTimeStamp || "",
-          sustainabilityMetrics: invoice.sustainabilityMetrics,
-          productName: invoice.InvoiceRows?.[0]?.ArticleName || "Unknown Product",
-        }));
-
-        allInvoices.push(...invoices);
-      }
-
       const payload = {
         productName,
         productId,
-        invoices: allInvoices,
+        invoices: invoices,
       };
       console.log("📦 Final payload:", JSON.stringify(payload, null, 2));
 
@@ -252,27 +377,33 @@ export default function UploadPage() {
       localStorage.setItem("createdProductId", result.productId);
       localStorage.setItem("createdBatchId", result.batchId);
       console.log("Batch created successfully:", result);
+      
+      return result; // Return the result to be used by the caller
     } catch (error: any) {
       console.error("Error during batch submission:", error);
       alert(`Error: ${error.message}`);
+      return null;
     } finally {
       setIsSubmitting(false);
     }
   }
 
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (invoices: Invoice[]) => {
     try {
-      submitBatch(
-        transactions,
+      const result = await submitBatch(
+        invoices,
         productName,
-        null,
+        selectedProductId,
         setIsSubmitting
-      )
-      // Navigate to success page or back to dashboard
-      router.push("/dashboard/batches/success")
+      );
+      
+      if (result) {
+        // Navigate to success page with the batch information
+        router.push(`/dashboard/batches/success?batchId=${result.batchId}&productId=${result.productId}`);
+      }
     } catch (error) {
-      console.error("Error submitting batch:", error)
+      console.error("Error submitting batch:", error);
     } finally {
       setIsSubmitting(false)
     }
@@ -294,51 +425,64 @@ export default function UploadPage() {
                 <h2 id="product-info-heading" className="sr-only">Product Information Form</h2>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="batchName" className="block text-sm font-medium text-gray-700 mb-1">
-                      Batch Name
+                    <label htmlFor="productSelect" className="block text-sm font-medium text-gray-700 mb-1">
+                      Product 
                     </label>
-                    <input
-                      id="batchName"
-                      type="text"
-                      value={batchName}
-                      onChange={(e) => setBatchName(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
-                      placeholder="Enter a name for this batch"
-                      aria-required="true"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">
-                      Product Name
-                    </label>
-                    <input
-                      id="productName"
-                      type="text"
-                      value={productName}
-                      onChange={(e) => setProductName(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
-                      placeholder="Enter the product name"
-                      aria-required="true"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="productCategory" className="block text-sm font-medium text-gray-700 mb-1">
-                      Product Category
-                    </label>
-                    <select
-                      id="productCategory"
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
-                      value={productCategory}
-                      onChange={(e) => setProductCategory(e.target.value)}
-                      aria-required="true"
-                    >
-                      <option value="">Select a category</option>
-                      {PRODUCT_CATEGORIES.map((category) => (
-                        <option key={category.value} value={category.value}>
-                          {category.label}
-                        </option>
-                      ))}
-                    </select>
+                    
+                    {loadingProducts ? (
+                      <div className="animate-pulse h-10 bg-gray-200 rounded-lg"></div>
+                    ) : (
+                      <>
+                        {isCreatingNewProduct ? (
+                          <div className="flex items-center space-x-2">
+                            <input
+                              id="productName"
+                              type="text"
+                              value={productName}
+                              onChange={(e) => setProductName(e.target.value)}
+                              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
+                              placeholder="Enter new product name"
+                              aria-required="true"
+                            />
+                            {existingProducts.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={handleCancelNewProduct}
+                                className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                                aria-label="Cancel creating new product"
+                              >
+                                <X className="h-5 w-5" />
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <select
+                              id="productSelect"
+                              value={selectedProductId || ""}
+                              onChange={handleProductSelect}
+                              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#12b784] focus:border-transparent"
+                              aria-label="Select product"
+                            >
+                              {existingProducts.map(product => (
+                                <option key={product.productId} value={product.productId}>
+                                  {product.productName}
+                                </option>
+                              ))}
+                              <option value="new">Create new product</option>
+                            </select>
+                            <button
+                              type="button"
+                              onClick={handleCreateNewProduct}
+                              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                              aria-label="Create new product"
+                            >
+                              <Plus className="h-5 w-5" />
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="productDescription" className="block text-sm font-medium text-gray-700 mb-1">
@@ -445,6 +589,21 @@ export default function UploadPage() {
           </PrimaryButton>
         ) : null}
       </div>
+      
+      {/* Loading Backdrop */}
+      {isProcessing && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <div className="w-16 h-16 border-4 border-t-[#12b784] border-r-[#12b784] border-b-transparent border-l-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-lg font-medium">Processing invoices...</p>
+            <p className="text-sm text-gray-500 mt-2">This may take a moment</p>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
