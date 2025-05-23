@@ -245,10 +245,13 @@ export default function BatchesPage() {
               <table id="batches-table" className="w-full" aria-label="Batches">
                 <thead>
                   <tr className="border-b">
-                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Product Name</th>
-                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">Date</th>
-                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
+                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Batch ID</th>
+                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">Product</th>
+                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Info URL</th>
+                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
+                    <th scope="col" className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">Status</th>
                     <th scope="col" className="text-center py-3 px-4 font-medium text-gray-500">Actions</th>
+
                   </tr>
                 </thead>
                 <tbody>
@@ -288,7 +291,7 @@ export default function BatchesPage() {
                           >
                             <Eye className="w-5 h-5 cursor-pointer" aria-hidden="true" />
                           </button>
-                    </td>
+                        </td>
                       </tr>
                     ))
                   ) : (
