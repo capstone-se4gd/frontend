@@ -141,7 +141,6 @@ export default function AnalyticsPage() {
       return acc
     }, {} as Record<string, number>)
     
-    // Generate mock monthly data (in a real app, this would come from the API with historical data)
     const monthlyData = {
       emissions: Array(12).fill(0).map(() => Math.floor(Math.random() * 80) + 20),
       water: Array(12).fill(0).map(() => Math.floor(Math.random() * 40) + 40),
@@ -162,9 +161,7 @@ export default function AnalyticsPage() {
       monthlyData
     })
   }
-  
-  // Simple function to categorize products based on name
-  // In a real app, this would come from the API
+
   const categorizeProduct = (productName: string): string => {
     if (productName.toLowerCase().includes('wood')) return 'Furniture'
     if (productName.toLowerCase().includes('cotton')) return 'Textiles'
@@ -222,8 +219,8 @@ export default function AnalyticsPage() {
     <div className="max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Analytics</h1>
-          <p className="text-gray-500 mt-1">Visualize and analyze your sustainability data</p>
+          <h1 className="text-2xl font-bold">Analytics</h1>
+          <p className="text-md text-gray-500 mt-1">Visualize and analyze your sustainability data</p>
         </div>
         <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
           <OutlineButton onClick={() => setTimeRange("month")} className={timeRange === "month" ? "bg-gray-100" : ""}>

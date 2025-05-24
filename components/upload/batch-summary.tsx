@@ -1349,6 +1349,7 @@ export function BatchSummary({
         <PrimaryButton 
           onClick={isSubmitting ? undefined : handleSubmitAttempt} 
           className={`w-[1/2] py-6 text-lg ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+          size="large"
         >
           {isSubmitting ? (
             <>

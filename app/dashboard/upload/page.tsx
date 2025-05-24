@@ -225,6 +225,7 @@ export default function UploadPage() {
     // Validation for the "product" step
     if (stepId === "product") {
       if (!productName || !productDescription) {
+      if (!productName) {
         alert("Please complete all product information fields before proceeding.");
         return;
       }
@@ -528,7 +529,6 @@ export default function UploadPage() {
       )
     }
 
-    // For all other steps, just show the file uploader
     return (
       <div className="space-y-6" aria-labelledby={`${currentStepId}-heading`}>
         <h2 id={`${currentStepId}-heading`} className="sr-only">{STEPS[currentStep].title}</h2>
@@ -538,7 +538,7 @@ export default function UploadPage() {
         <FileUploader
           title={`Upload ${STEPS[currentStep].title} Files`}
           description="Upload XML invoices or other supporting documents. The system will automatically extract sustainability metrics from these files."
-          accept=".xml,.pdf,.xlsx"
+          accept=".xml"
           files={files[currentStepId] || []}
           onUpload={(newFiles) => handleFileUpload(currentStepId, newFiles)}
           onRemove={(index) => handleRemoveFile(currentStepId, index)}
@@ -552,8 +552,8 @@ export default function UploadPage() {
   return (
     <main className="max-w-5xl mx-auto" role="main">
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold">Upload Sustainability Data</h1>
-        <p className="text-gray-500 mt-1">Complete all steps to submit your batch</p>
+        <h1 className="text-2xl font-bold">Upload Sustainability Data</h1>
+        <p className="text-gray-500 mt-1 text-md">Complete all steps to submit your batch</p>
       </div>
 
       <nav aria-label="Form steps">
@@ -570,11 +570,11 @@ export default function UploadPage() {
         {renderStepContent()}
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8">
+      <div className="flex flex-row justify-between gap-4 mt-8">
         <OutlineButton
           onClick={handlePrevious}
           disabled={currentStep === 0}
-          ariaLabel="Go to previous step"
+          aria-label="Go to previous step"
         >
           Previous
         </OutlineButton>
@@ -582,7 +582,7 @@ export default function UploadPage() {
         {currentStep < STEPS.length - 1 ? (
           <PrimaryButton
             onClick={handleNext}
-            ariaLabel="Go to next step"
+            aria-label="Go to next step"
           >
             Next
             <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />

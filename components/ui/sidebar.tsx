@@ -21,9 +21,9 @@ import {
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
+const SIDEBAR_WIDTH = "clamp(16rem, 25vw, 20rem)" // Dynamic width based on viewport
+const SIDEBAR_WIDTH_MOBILE = "min(18rem, 100vh)" // Responsive mobile width
+const SIDEBAR_WIDTH_ICON = "3.5rem"
 
 type SidebarContext = {
   state: "expanded" | "collapsed"
@@ -197,7 +197,12 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground"
+        className={cn(
+          "group peer z-40 text-sidebar-foreground", // Added z-index
+          "md:block", // Show on desktop
+          "data-[state=expanded]:block", // Show when expanded
+          "data-[state=collapsed]:hidden md:data-[state=collapsed]:block" // Hide on mobile when collapsed
+        )}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
@@ -205,33 +210,24 @@ const Sidebar = React.forwardRef<
       >
         <div
           className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
-            "group-data-[collapsible=offcanvas]:w-0",
-            "group-data-[side=right]:rotate-180",
-            variant === "floating" || variant === "inset"
-              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
-          )}
-        />
-        <div
-          className={cn(
-            "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
-            side === "left"
-              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            variant === "floating" || variant === "inset"
-              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
+            "fixed inset-y-0 z-40 flex h-dvh w-[--sidebar-width] flex-col",
+            "transition-all duration-300 ease-in-out",
+            // Position based on side
+            side === "left" ? "left-0" : "right-0",
+            // Collapse animations
+            "data-[collapsible=offcanvas]:-translate-x-full",
+            "data-[side=right]:data-[collapsible=offcanvas]:translate-x-full",
+            // Responsive width
+            "md:relative md:w-[--sidebar-width]",
+            // Border & shadow
+            "border-sidebar-border bg-sidebar shadow-lg",
+            side === "left" ? "border-r" : "border-l",
+            variant === "floating" && "m-2 rounded-xl border",
             className
           )}
           {...props}
         >
-          <div
-            data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
-          >
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     )
@@ -384,7 +380,10 @@ const SidebarContent = React.forwardRef<
       ref={ref}
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2",
+        "overflow-y-auto overscroll-contain", // Improved scroll behavior
+        "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-sidebar-accent/20",
+        "group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}
@@ -471,7 +470,12 @@ const SidebarMenu = React.forwardRef<
   <ul
     ref={ref}
     data-sidebar="menu"
-    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+    className={cn(
+      "flex w-full min-w-0 flex-col gap-1",
+      "touch-manipulation", // Better touch handling
+      "[@media(hover:none)]:cursor-default", // Better mobile handling
+      className
+    )}
     {...props}
   />
 ))
