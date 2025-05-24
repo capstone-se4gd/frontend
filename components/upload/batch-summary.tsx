@@ -1183,7 +1183,7 @@ export function BatchSummary({
                 {addingNewMetric && (
                   <div 
                     id="new-metric-form"
-                    className="mt-4 pt-4 border-t border-gray-200 bg-blue-50 p-4 rounded-md border border-blue-200 shadow-sm"
+                    className="mt-4 pt-4 border-t border-gray-200 bg-blue-50 p-4 rounded-md shadow-sm"
                   >
                     <h4 className="text-sm font-medium mb-3 flex items-center">
                       <span className="text-blue-600 mr-2">+</span> Add New Metric
