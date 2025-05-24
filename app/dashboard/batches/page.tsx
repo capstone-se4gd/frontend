@@ -153,7 +153,7 @@ export default function BatchesPage() {
   }
 
   const handleViewBatch = (batchId: string) => {
-    router.push(`/batches/${batchId}`)
+    router.push(`/dashboard/batches/${batchId}`)
   }
 
   return (
