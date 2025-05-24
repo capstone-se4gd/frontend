@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatDate } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { SubcategoryBadge } from "@/components/ui/subcategory-badge"
 
 export default function BatchViewPage() {
   const searchParams = useParams()
@@ -87,7 +87,7 @@ export default function BatchViewPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-foreground">
             <div><strong>ID:</strong> {batchInfo.id}</div>
             <div><strong>Product:</strong> {batchInfo.product_name}</div>
-            <div><strong>Created:</strong> {formatDate(new Date(batchInfo.created_at))}</div>
+            <div><strong>Created:</strong> {batchInfo.created_at}</div>
             <div>
               <strong>Info:</strong>{" "}
               <a href={batchInfo.information_url} target="_blank" rel="noreferrer" className="text-primary underline">
@@ -104,10 +104,10 @@ export default function BatchViewPage() {
           <h2 className="text-lg font-semibold text-foreground">Invoices</h2>
           {invoices.map((invoice: any) => (
             <div key={invoice.id} className="border rounded-lg p-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-foreground">{invoice.invoiceNumber}</span>
-                <Badge variant="outline">{invoice.subCategory}</Badge>
+              <div className="mb-2 sm:flex sm:justify-end">
+                <SubcategoryBadge>{invoice.subCategory}</SubcategoryBadge>
               </div>
+
               <div className="text-sm text-muted-foreground">
                 {/* <p><strong>Facility:</strong> {invoice.facility}</p> */}
                 <p><strong>Organizational Unit:</strong> {invoice.organizational_unit}</p>
