@@ -23,7 +23,7 @@ export function LoginForm() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,6 +43,10 @@ export function LoginForm() {
         role = "manager"
       }
 
+      const data = await response.json();
+
+      localStorage.setItem("token", data.token);
+
       // Store user info in localStorage
       localStorage.setItem(
         "user",
@@ -57,15 +61,6 @@ export function LoginForm() {
     } catch (err) {
       setError(`Login failed: ${err instanceof Error ? err.message : "Unknown error"}`)
       console.error("Login error:", err)
-      router.push("/dashboard")
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          username,
-          role: "admin",
-          name: username.charAt(0).toUpperCase() + username.slice(1),
-        }),
-      )
     } finally {
       setIsLoading(false)
     }
