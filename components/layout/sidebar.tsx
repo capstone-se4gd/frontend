@@ -26,7 +26,7 @@ export function Sidebar({ userRole = "user" }: SidebarProps) {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`)
+  const isActive = (path: string) => pathname === path || (pathname.startsWith(`${path}/`) && path !== "/dashboard")
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },

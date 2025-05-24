@@ -224,7 +224,6 @@ export default function UploadPage() {
 
     // Validation for the "product" step
     if (stepId === "product") {
-      if (!productName || !productDescription) {
       if (!productName) {
         alert("Please complete all product information fields before proceeding.");
         return;

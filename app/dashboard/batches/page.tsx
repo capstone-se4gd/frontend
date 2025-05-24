@@ -279,8 +279,8 @@ export default function BatchesPage() {
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <Badge status={batch.status}>
-                            {batch.status.charAt(0).toUpperCase() + batch.status.slice(1)}
+                          <Badge status={batch.status || "completed"}>
+                            {batch.status ? batch.status.charAt(0).toUpperCase() + batch.status.slice(1) : "Completed"}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -321,7 +321,7 @@ export default function BatchesPage() {
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <dt>Completed</dt>
-                  <dd className="font-medium">{batches.filter((b) => b.status === "completed").length}</dd>
+                  <dd className="font-medium">{batches.filter((b) => b.status === "completed" || !b.status).length}</dd>
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <dt>In Progress</dt>
