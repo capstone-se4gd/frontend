@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatDate } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
-import { SubcategoryBadge } from "@/components/ui/subcategory-badge"
+import { Badge } from "@/components/ui/badge"
 
 export default function BatchViewPage() {
   const searchParams = useParams()
@@ -105,7 +105,9 @@ export default function BatchViewPage() {
           {invoices.map((invoice: any) => (
             <div key={invoice.id} className="border rounded-lg p-4">
               <div className="mb-2 sm:flex sm:justify-end">
-                <SubcategoryBadge>{invoice.subCategory}</SubcategoryBadge>
+                <Badge status={invoice.subCategory}>
+                  {invoice.subCategory.charAt(0).toUpperCase() + invoice.subCategory.slice(1)}
+                </Badge>
               </div>
 
               <div className="text-sm text-muted-foreground">
