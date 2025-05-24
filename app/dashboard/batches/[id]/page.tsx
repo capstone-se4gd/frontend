@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { formatDate } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { SubcategoryBadge } from "@/components/ui/subcategory-badge"
 
 export default function BatchViewPage() {
   const searchParams = useParams()
@@ -53,7 +52,7 @@ export default function BatchViewPage() {
     return Object.entries(totals).map(([name, data]) => (
       <div key={name} className="flex justify-between border-b py-2 text-foreground">
         <span>{name}</span>
-        <span className="font-medium">{data.value} {data.unit}</span>
+        <span className="font-medium">{data.value} {data.unit === 'kg' ? data.unit + ' CO2e' : data.unit}</span>
       </div>
     ))
   }
@@ -83,7 +82,7 @@ export default function BatchViewPage() {
       {/* Batch Info */}
       <Card>
         <CardContent className="p-6 space-y-2">
-          <h2 className="text-lg font-semibold text-foreground">Batch Information</h2>
+          <h2 className="text-lg font-semibold text-foreground pt-6">Batch Information</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-foreground">
             <div><strong>ID:</strong> {batchInfo.id}</div>
             <div><strong>Product:</strong> {batchInfo.product_name}</div>
@@ -98,16 +97,22 @@ export default function BatchViewPage() {
         </CardContent>
       </Card>
 
+      {/* Sustainability Metrics */}
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-lg font-semibold mb-4 text-foreground pt-6">Sustainability Metrics Summary</h2>
+          {renderMetricSummary()}
+        </CardContent>
+      </Card>
+
       {/* Invoices */}
       <Card>
         <CardContent className="p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">Invoices</h2>
+          <h2 className="text-lg font-semibold text-foreground pt-6">Invoices</h2>
           {invoices.map((invoice: any) => (
             <div key={invoice.id} className="border rounded-lg p-4">
               <div className="mb-2 sm:flex sm:justify-end">
-                <Badge status={invoice.subCategory}>
-                  {invoice.subCategory.charAt(0).toUpperCase() + invoice.subCategory.slice(1)}
-                </Badge>
+                <SubcategoryBadge>{invoice.subCategory}</SubcategoryBadge>
               </div>
 
               <div className="text-sm text-muted-foreground">
@@ -138,14 +143,6 @@ export default function BatchViewPage() {
               </div>
             </div>
           ))}
-        </CardContent>
-      </Card>
-
-      {/* Sustainability Metrics */}
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-lg font-semibold mb-4 text-foreground">Sustainability Metrics Summary</h2>
-          {renderMetricSummary()}
         </CardContent>
       </Card>
     </main>

@@ -4,7 +4,7 @@ import type { ReactNode } from "react"
 
 interface OutlineButtonProps {
   children: ReactNode
-  onClick?: () => void
+  onClick?: (e: any) => void
   size?: "default" | "large"
   className?: string
   disabled?: boolean

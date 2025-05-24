@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
         const body = await request.json()
 
-        const response = await fetch("https://msm-integration-876789228877.europe-north1.run.app/api/create-batch", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/create-batch`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

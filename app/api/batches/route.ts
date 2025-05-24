@@ -8,7 +8,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Missing Authorization header" }, { status: 401 })
     }
 
-    const response = await fetch("https://msm-integration-876789228877.europe-north1.run.app/api/batches", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/batches`, {
       method: "GET",
       headers: {
         Accept: "application/json",

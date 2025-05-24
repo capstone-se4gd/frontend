@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { use, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
@@ -35,25 +35,22 @@ export function LoginForm() {
         throw new Error(`Login failed: ${response.statusText}`);
       }
 
-      // For demo purposes, hardcode some user roles
-      let role = "user"
-      if (username.includes("admin")) {
-        role = "admin"
-      } else if (username.includes("manager")) {
-        role = "manager"
-      }
-
       const data = await response.json();
 
+      // For demo purposes, hardcode some user roles
+      let role = data.user?.role || "user"; // Default to "user" if no role is provided
+
       localStorage.setItem("token", data.token);
+
+      const name = data.user?.username ? data.user.username.charAt(0).toUpperCase() + data.user.username.slice(1) : username.charAt(0).toUpperCase() + username.slice(1);
 
       // Store user info in localStorage
       localStorage.setItem(
         "user",
         JSON.stringify({
-          username,
+          username: name,
           role,
-          name: username.charAt(0).toUpperCase() + username.slice(1),
+          email: username,
         }),
       )
 

@@ -21,7 +21,7 @@ interface HeaderProps {
 
 export function Header({ showLogo = true, userName = "User", userRole = "user" }: HeaderProps) {
   const router = useRouter()
-  const [notifications, setNotifications] = useState(3)
+  const [notifications, setNotifications] = useState(0)
 
   const handleLogout = () => {
     localStorage.removeItem("user")
@@ -83,7 +83,7 @@ export function Header({ showLogo = true, userName = "User", userRole = "user" }
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="flex items-center gap-2 p-1 sm:p-2 rounded-full hover:bg-gray-100"
+              className="flex items-center gap-2 p-1 sm:p-2 rounded-full hover:bg-gray-100 sm:px-3"
               aria-label="User menu"
             >
               <span className="text-sm font-medium hidden sm:inline">{userName}</span>

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const id = params.id
-    const response = await fetch(`http://194.37.81.247:8000/api/products/${id}/`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}/`, {
       headers: {
         "Content-Type": "application/json",
       },

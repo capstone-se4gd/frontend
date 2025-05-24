@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server"
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge' // or 'nodejs'
+
 export async function GET(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params
+    const id = params.id
     const authHeader = request.headers.get("Authorization")
 
     if (!authHeader) {
@@ -13,7 +16,7 @@ export async function GET(
     }
 
     const response = await fetch(
-      `https://msm-integration-876789228877.europe-north1.run.app/api/batches/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/batches/${id}`,
       {
         headers: {
           "Content-Type": "application/json",
