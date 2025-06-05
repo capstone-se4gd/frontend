@@ -112,14 +112,14 @@ export function LoginForm() {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        {/* <div className="flex justify-end">
           <Link
             href="/forgot-password"
             className="text-xs md:text-sm text-gray-700 hover:text-gray-900 hover:underline"
           >
             Forgot password?
           </Link>
-        </div>
+        </div> */}
 
         <PrimaryButton
           type="submit"
@@ -132,7 +132,7 @@ export function LoginForm() {
         </PrimaryButton>
       </form>
 
-      <p className="mt-4 text-sm text-gray-600">
+      {/* <p className="mt-4 text-sm text-gray-600">
         Don't have an account?{" "}
         <Link
           href="/create-account"
@@ -140,7 +140,7 @@ export function LoginForm() {
         >
           Create one
         </Link>
-      </p>
+      </p> */}
     </div>
   )
 }

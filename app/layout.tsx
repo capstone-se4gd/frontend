@@ -8,8 +8,6 @@ export const metadata: Metadata = {
   description: "A comprehensive platform for sustainability data management",
   // Disable font optimization
   metadataBase: new URL('https://frontend-876789228877.europe-north1.run.app'),
-  // Explicitly prevent font optimization
-  fontOptimization: false,
 }
 
 export default function RootLayout({
