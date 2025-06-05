@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { PrimaryButton } from "@/components/ui/primary-button"
-import { Adamina } from "next/font/google"
 
 export function LoginForm() {
   const router = useRouter()
