@@ -24,7 +24,7 @@ export function PrimaryButton({
   return (
     <button
       type={type}
-      className={`bg-[#1BA177] text-white font-medium rounded-lg hover:bg-[#12b784]/90 transition-colors inline-flex items-center justify-center ${sizeClasses} ${className} ${
+      className={`bg-[#1BA177] text-[#FCFCFC] font-medium rounded-lg hover:bg-[#12b784]/90 transition-colors inline-flex items-center justify-center ${sizeClasses} ${className} ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       }`}
       onClick={onClick}

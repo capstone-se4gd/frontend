@@ -49,7 +49,7 @@ export function Header({ showLogo = true, userName = "User", userRole = "user" }
   }
 
   return (
-    <header className="flex items-center justify-between px-4 sm:px-6 py-2.5 border-b border-[#e9e9e9] bg-white shadow-sm">
+    <header className="flex items-center justify-between px-4 sm:px-6 py-2.5 border-b border-[#e9e9e9] bg-[#FCFCFC] shadow-sm">
       <div className="flex items-center gap-4">
         {/* Hamburger menu button */}
         <button
@@ -74,7 +74,7 @@ export function Header({ showLogo = true, userName = "User", userRole = "user" }
         >
           <Bell className="w-5 h-5 text-gray-600" />
           {notifications > 0 && (
-            <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-500 rounded-full">
+            <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs text-[#FCFCFC] bg-red-500 rounded-full">
               {notifications}
             </span>
           )}
@@ -87,7 +87,7 @@ export function Header({ showLogo = true, userName = "User", userRole = "user" }
               aria-label="User menu"
             >
               <span className="text-sm font-medium hidden sm:inline">{userName}</span>
-              <Avatar className="h-8 w-8 bg-[#12b784] text-white">
+              <Avatar className="h-8 w-8 bg-[#12b784] text-[#FCFCFC]">
                 <AvatarFallback>{getInitials(userName)}</AvatarFallback>
               </Avatar>
             </button>
@@ -100,10 +100,6 @@ export function Header({ showLogo = true, userName = "User", userRole = "user" }
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>

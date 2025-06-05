@@ -132,7 +132,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-white">
+      <div className="flex h-screen bg-[#FCFCFC]">
         <Sidebar />
         <div className="flex-1">
           <Header showLogo={true} />
@@ -146,7 +146,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-[#FCFCFC]">
       <Sidebar />
       <div className="flex-1">
         <Header showLogo={true} />
@@ -177,7 +177,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             {productData && (
               <div className="space-y-8">
-                <div className="bg-white border-2 border-[#000000] rounded-lg p-6">
+                <div className="bg-background border-2 border-[#000000] rounded-lg p-6">
                   <h1 className="text-3xl font-bold mb-4">{productData.name || "Product Details"}</h1>
 
                   {productData.description && <p className="text-gray-700 mb-6">{productData.description}</p>}
@@ -209,7 +209,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
                 {/* Metrics Section */}
                 {productData.metrics && Object.keys(productData.metrics).length > 0 && (
-                  <div className="bg-white border-2 border-[#000000] rounded-lg p-6">
+                  <div className="bg-[#FCFCFC] border-2 border-[#000000] rounded-lg p-6">
                     <h2 className="text-2xl font-bold mb-4">Sustainability Metrics</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries(productData.metrics).map(([key, value]) => (
@@ -228,7 +228,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     <h2 className="text-2xl font-bold">Components</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {productData.components.map((component, index) => (
-                        <div key={index} className="bg-white border-2 border-[#000000] rounded-lg p-6">
+                        <div key={index} className="bg-[#FCFCFC] border-2 border-[#000000] rounded-lg p-6">
                           <h3 className="text-xl font-medium text-center mb-4">{component.name}</h3>
 
                           {component.metrics && Object.keys(component.metrics).length > 0 && (

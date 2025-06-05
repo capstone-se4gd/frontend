@@ -962,7 +962,7 @@ export function BatchSummary({
         }}
       >
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto !p-0">
-          <DialogHeader className="sticky top-0 z-10 bg-white px-6 py-4 border-b">
+          <DialogHeader className="sticky top-0 z-10 bg-[#FCFCFC] px-6 py-4 border-b">
             <DialogTitle>Edit Invoice</DialogTitle>
           </DialogHeader>
           
@@ -1219,7 +1219,7 @@ export function BatchSummary({
                               });
                             }
                           }}
-                          className="w-full px-3 py-2 border rounded-md mt-1 bg-white"
+                          className="w-full px-3 py-2 border rounded-md mt-1 bg-[#FCFCFC]"
                           required
                         >
                           <option value="">-- Select a metric --</option>
@@ -1235,12 +1235,12 @@ export function BatchSummary({
                         <div className="animate-fadeIn">
                           <div>
                             <label className="text-sm text-gray-600 font-medium">Description</label>
-                            <p className="text-sm text-gray-600 mt-1 bg-white p-2 rounded border">{newMetric.description}</p>
+                            <p className="text-sm text-gray-600 mt-1 bg-[#FCFCFC] p-2 rounded border">{newMetric.description}</p>
                           </div>
                           <div className="grid grid-cols-2 gap-3 mt-3">
                             <div>
                               <label className="text-sm text-gray-600 font-medium">Unit*</label>
-                              <p className="text-sm font-medium mt-1 bg-white p-2 rounded border">{newMetric.unit}</p>
+                              <p className="text-sm font-medium mt-1 bg-[#FCFCFC] p-2 rounded border">{newMetric.unit}</p>
                             </div>
                             <div>
                               <label className="text-sm text-gray-600 font-medium">Value*</label>
@@ -1249,7 +1249,7 @@ export function BatchSummary({
                                 type="number"
                                 value={newMetric.value || 0}
                                 onChange={(e) => setNewMetric({...newMetric, value: parseFloat(e.target.value) || 0})}
-                                className="w-full px-3 py-2 border rounded-md mt-1 bg-white focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border rounded-md mt-1 bg-[#FCFCFC] focus:ring-2 focus:ring-blue-500"
                                 min="0"
                                 step="0.01"
                                 required
@@ -1263,14 +1263,14 @@ export function BatchSummary({
                         <button
                           type="button"
                           onClick={() => setAddingNewMetric(false)}
-                          className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white"
+                          className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-[#FCFCFC]"
                         >
                           Cancel
                         </button>
                         <button
                           type="button"
                           onClick={handleAddMetric}
-                          className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+                          className="px-3 py-1 bg-blue-600 text-[#FCFCFC] rounded-md text-sm hover:bg-blue-700"
                         >
                           Add
                         </button>
@@ -1280,7 +1280,7 @@ export function BatchSummary({
                 )}
               </div>
               
-              <DialogFooter className="col-span-1 md:col-span-2 sticky bottom-0 z-10 bg-white pt-4 border-t mt-4 pb-6">
+              <DialogFooter className="col-span-1 md:col-span-2 sticky bottom-0 z-10 bg-[#FCFCFC] pt-4 border-t mt-4 pb-6">
                 <OutlineButton 
                   type="button" 
                   onClick={() => {

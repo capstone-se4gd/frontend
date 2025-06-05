@@ -50,7 +50,7 @@ export function Sidebar({ userRole = "user" }: SidebarProps) {
       {/* Mobile menu button */}
       <button
         onClick={toggleMobileMenu}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-[#1a2942] text-white"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-[#1a2942] text-[#FCFCFC]"
         aria-label={mobileOpen ? "Close menu" : "Open menu"}
         aria-expanded={mobileOpen}
       >
@@ -59,7 +59,7 @@ export function Sidebar({ userRole = "user" }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`bg-[#1a2942] text-white transition-all duration-300 fixed lg:sticky top-0 z-40
+        className={`bg-[#1a2942] text-[#FCFCFC] transition-all duration-300 fixed lg:sticky top-0 z-40
           ${expanded ? "w-64" : "w-[80px]"} 
           ${mobileOpen ? "left-0 min-w-full h-full" : "-left-full lg:left-0"}
           h-screen flex flex-col`}
@@ -86,7 +86,7 @@ export function Sidebar({ userRole = "user" }: SidebarProps) {
                 key={item.path}
                 href={item.path}
                 className={`flex items-center px-3 py-2.5 rounded-lg transition-colors ${
-                  isActive(item.path) ? "bg-[#1BA177] text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                  isActive(item.path) ? "bg-[#1BA177] text-[#FCFCFC]" : "text-gray-300 hover:bg-gray-700 hover:text-[#FCFCFC]"
                 }`}
                 onClick={() => setMobileOpen(false)}
                 aria-current={isActive(item.path) ? "page" : undefined}
@@ -112,8 +112,8 @@ export function Sidebar({ userRole = "user" }: SidebarProps) {
                     href={item.path}
                     className={`flex items-center px-3 py-2.5 rounded-lg transition-colors ${
                       isActive(item.path)
-                        ? "bg-[#1BA177] text-white"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                        ? "bg-[#1BA177] text-[#FCFCFC]"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-[#FCFCFC]"
                     }`}
                     onClick={() => setMobileOpen(false)}
                     aria-current={isActive(item.path) ? "page" : undefined}

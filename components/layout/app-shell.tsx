@@ -61,7 +61,7 @@ export function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-[#FCFCFC]">
       <Sidebar userRole={user?.role} />
       <div className="flex-1 w-full">
         <Header userName={user?.name} userRole={user?.role} />

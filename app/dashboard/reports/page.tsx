@@ -91,7 +91,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border shadow-sm p-4 sm:p-6 mb-8">
+      <div className="bg-[#FCFCFC] rounded-lg border shadow-sm p-4 sm:p-6 mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

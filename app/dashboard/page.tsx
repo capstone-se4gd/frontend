@@ -173,7 +173,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <section aria-labelledby="recent-batches-heading" className="bg-white rounded-lg border shadow-sm p-6 mb-8">
+      <section aria-labelledby="recent-batches-heading" className="bg-[#FCFCFC] rounded-lg border shadow-sm p-6 mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <h2 id="recent-batches-heading" className="text-xl font-bold">Recent Batches</h2>
           <div className="mt-4 md:mt-0 relative">

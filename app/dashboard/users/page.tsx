@@ -718,7 +718,7 @@ export default function UsersPage() {
               <PrimaryButton type="submit" disabled={isCreateSubmitting}>
                 {isCreateSubmitting ? (
                   <>
-                    <div className="animate-spin h-4 w-4 mr-2 border-b-2 border-white rounded-full"></div>
+                    <div className="animate-spin h-4 w-4 mr-2 border-b-2 border-[#FCFCFC] rounded-full"></div>
                     Creating...
                   </>
                 ) : (
@@ -855,7 +855,7 @@ export default function UsersPage() {
               <PrimaryButton type="submit" disabled={isEditSubmitting}>
                 {isEditSubmitting ? (
                   <>
-                    <div className="animate-spin h-4 w-4 mr-2 border-b-2 border-white rounded-full"></div>
+                    <div className="animate-spin h-4 w-4 mr-2 border-b-2 border-[#FCFCFC] rounded-full"></div>
                     Saving...
                   </>
                 ) : (
@@ -903,11 +903,11 @@ export default function UsersPage() {
                 confirmDeleteUser();
               }}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white"
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-500 text-[#FCFCFC]"
             >
               {isDeleting ? (
                 <>
-                  <div className="animate-spin h-4 w-4 mr-2 border-b-2 border-white rounded-full"></div>
+                  <div className="animate-spin h-4 w-4 mr-2 border-b-2 border-[#FCFCFC] rounded-full"></div>
                   Deleting...
                 </>
               ) : (

@@ -596,7 +596,7 @@ export default function UploadPage() {
           aria-live="polite"
           aria-busy="true"
         >
-          <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+          <div className="bg-[#FCFCFC] p-6 rounded-lg shadow-xl flex flex-col items-center">
             <div className="w-16 h-16 border-4 border-t-[#12b784] border-r-[#12b784] border-b-transparent border-l-transparent rounded-full animate-spin mb-4"></div>
             <p className="text-lg font-medium">Processing invoices...</p>
             <p className="text-sm text-gray-500 mt-2">This may take a moment</p>

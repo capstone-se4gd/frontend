@@ -33,7 +33,7 @@ export function Stepper({ steps, currentStep, onStepClick }: StepperProps) {
                 <span
                   className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                     index < currentStep
-                      ? "bg-[#12b784] border-[#12b784] text-white"
+                      ? "bg-[#12b784] border-[#12b784] text-[#FCFCFC]"
                       : index === currentStep
                         ? "border-[#12b784] text-[#12b784]"
                         : "border-gray-300 text-gray-500"
