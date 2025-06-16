@@ -245,7 +245,24 @@ export default function AnalyticsPage() {
     }
   }
 
-  function processBatchData(batchDetails: any[], products: any[]) {
+  type ProductResponse =
+    {
+      productId: string
+      productName: string,
+      sustainabilityMetrics: any[]
+    }[]
+
+  type ProductResponsePagination = {
+    products: ProductResponse
+    pagination: {
+      total: number
+      page: number
+      pages: number
+      per_page: number
+    }
+  }
+
+  function processBatchData(batchDetails: any[], products: ProductResponse | ProductResponsePagination) {
     let totalEmissions = 0
     let waterUsage = 0
     let energyConsumption = 0
@@ -253,7 +270,10 @@ export default function AnalyticsPage() {
       scope2 = 0,
       scope3 = 0
 
-    const productMap = new Map(products.map(p => [p.productId, p.productName]))
+    // Fix the pagination check using 'in' operator to properly type-check
+    const productMap = 'pagination' in products 
+      ? new Map(products.products.map(p => [p.productId, p.productName])) 
+      : new Map(products.map(p => [p.productId, p.productName]))
     
     // Use a Map to aggregate emissions by product
     const productEmissionsMap = new Map<string, { 
