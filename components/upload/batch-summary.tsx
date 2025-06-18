@@ -7,6 +7,7 @@ import { PrimaryButton } from "@/components/ui/primary-button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { OutlineButton } from "@/components/ui/outline-button"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { formatToTwoDecimals } from "@/lib/utils" // Import the utility function
 
 interface MetricItem {
   name: string;
@@ -210,6 +211,14 @@ export function BatchSummary({
 
           // Update processedInvoices to track warnings
           const processedInvoices = data.result.map((invoice: any, idx: number) => {
+            // Process sustainability metrics to ensure 2 decimal places
+            const processedMetrics = Array.isArray(invoice.sustainabilityMetrics) 
+              ? invoice.sustainabilityMetrics.map((metric: any) => ({
+                  ...metric,
+                  value: formatToTwoDecimals(metric.value)
+                }))
+              : [];
+
             const processed = {
               id: `${mappedCategory}-${idx}`, // Keep ID for internal tracking
               facility: invoice.SellerPartyDetails?.SellerOrganisationName || "",
@@ -224,7 +233,7 @@ export function BatchSummary({
               currency: invoice.InvoiceDetails?.CurrencyIdentifier || "",
               transactionStartDate: invoice.MessageTransmissionDetails?.MessageTimeStamp || "",
               transactionEndDate: invoice.MessageTransmissionDetails?.MessageTimeStamp || "",
-              sustainabilityMetrics: invoice.sustainabilityMetrics || [],
+              sustainabilityMetrics: processedMetrics,
               productName: invoice.InvoiceRows?.[0]?.ArticleName || "",
               url: invoice.other_url || "", // Keep URL for UI functionality
             };
@@ -292,17 +301,17 @@ export function BatchSummary({
                 console.warn(`Invalid quantityNeededPerUnit (${invoice.quantityNeededPerUnit}) for invoice ${invoice.id}`);
               } else if (invoice.emissionsArePerUnit === "YES") {
                 // If emissions are per unit, multiply by quantityNeededPerUnit
-                adjustedValue = metric.value * invoice.quantityNeededPerUnit;
+                adjustedValue = formatToTwoDecimals(metric.value * invoice.quantityNeededPerUnit);
               } else if (invoice.emissionsArePerUnit === "NO") {
                 // If emissions are not per unit, multiply by quantityNeededPerUnit / unitsBought
                 if (isNaN(invoice.unitsBought) || invoice.unitsBought <= 0) {
                   console.warn(`Invalid unitsBought (${invoice.unitsBought}) for invoice ${invoice.id}`);
                 } else {
-                  adjustedValue = metric.value * (invoice.quantityNeededPerUnit / invoice.unitsBought);
+                  adjustedValue = formatToTwoDecimals(metric.value * (invoice.quantityNeededPerUnit / invoice.unitsBought));
                 }
               }
               
-              metricSums[category].value += adjustedValue;
+              metricSums[category].value = formatToTwoDecimals(metricSums[category].value + adjustedValue);
               metricSums[category].unit = metric.unit;
               metricSums[category].sources.push({
                 name: invoice.productName,
@@ -508,7 +517,7 @@ export function BatchSummary({
       name: newMetric.name || "",
       description: newMetric.description || "",
       unit: newMetric.unit || "kg",
-      value: typeof newMetric.value === 'number' ? newMetric.value : 0
+      value: formatToTwoDecimals(typeof newMetric.value === 'number' ? newMetric.value : 0)
     });
     
     setEditingInvoice({
@@ -715,7 +724,7 @@ export function BatchSummary({
               <div>
                 <h4 className="text-sm font-medium text-gray-700">Total Emissions</h4>
                 <p className="text-xl font-semibold mt-1">
-                  {calculatedMetrics.stationary?.value.toFixed(2)} <span className="text-sm font-normal text-gray-500 ml-1">{calculatedMetrics.stationary?.unit}</span>
+                  {formatToTwoDecimals(calculatedMetrics.stationary?.value)} <span className="text-sm font-normal text-gray-500 ml-1">{calculatedMetrics.stationary?.unit}</span>
                 </p>
               </div>
               
@@ -744,7 +753,7 @@ export function BatchSummary({
                           {calculatedMetrics.stationary.sources.map((source, i) => (
                             <div key={i} className="flex justify-between text-sm">
                               <span className="text-gray-600">{source.name}</span>
-                              <span>{source.value.toFixed(2)} {calculatedMetrics.stationary.unit}</span>
+                              <span>{formatToTwoDecimals(source.value)} {calculatedMetrics.stationary.unit}</span>
                             </div>
                           ))}
                         </div>
@@ -1097,7 +1106,7 @@ export function BatchSummary({
               <div className="col-span-1 md:col-span-2">
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="text-sm font-medium text-gray-700">Sustainability Metrics</h3>
-                  {Array.isArray(editingInvoice.sustainabilityMetrics) && getAvailableMetrics(editingInvoice.sustainabilityMetrics).length > 0 && (
+                  {((Array.isArray(editingInvoice.sustainabilityMetrics) && getAvailableMetrics(editingInvoice.sustainabilityMetrics).length > 0) || (!Array.isArray(editingInvoice.sustainabilityMetrics) || editingInvoice.sustainabilityMetrics.length === 0 )) && (
                     <button
                       type="button"
                       onClick={() => {
@@ -1141,7 +1150,7 @@ export function BatchSummary({
                               const updatedMetrics = [...editingInvoice.sustainabilityMetrics];
                               updatedMetrics[index] = {
                                 ...metric,
-                                value: value
+                                value: formatToTwoDecimals(value)
                               };
                               setEditingInvoice({
                                 ...editingInvoice,

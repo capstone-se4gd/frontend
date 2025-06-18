@@ -13,3 +13,10 @@ export function formatDate(date: Date): string {
 export function cn(...classes: (string | undefined | boolean)[]) {
   return classes.filter(Boolean).join(" ")
 }
+
+export const formatToTwoDecimals = (value) => {
+  if (value === null || value === undefined || isNaN(value)) {
+    return value;
+  }
+  return Math.round(value * 100) / 100;
+};

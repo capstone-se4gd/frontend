@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
 import { SubcategoryBadge } from "@/components/ui/subcategory-badge"
+import { formatToTwoDecimals } from "@/lib/utils" // Import the formatting utility
 
 export default function BatchViewPage() {
   const searchParams = useParams()
@@ -52,7 +53,7 @@ export default function BatchViewPage() {
     return Object.entries(totals).map(([name, data]) => (
       <div key={name} className="flex justify-between border-b py-2 text-foreground">
         <span>{name}</span>
-        <span className="font-medium">{data.value} {data.unit === 'kg' ? data.unit + ' CO2e' : data.unit}</span>
+        <span className="font-medium">{formatToTwoDecimals(data.value)} {data.unit === 'kg' ? data.unit + ' CO2e' : data.unit}</span>
       </div>
     ))
   }
@@ -136,7 +137,7 @@ export default function BatchViewPage() {
                 <ul className="text-sm list-disc list-inside text-muted-foreground">
                   {invoice.supplierDetails.sustainability_metrics.map((metric: any) => (
                     <li key={metric.name}>
-                      {metric.name}: {metric.value} {metric.unit}
+                      {metric.name}: {formatToTwoDecimals(metric.value)} {metric.unit}
                     </li>
                   ))}
                 </ul>
