@@ -42,6 +42,16 @@ interface MetricItem {
   value: number;
 }
 
+interface ProductsResponse {
+  products: Product[];
+  pagination: {
+    page: number;
+    per_page: number;
+    total: number;
+    pages: number;
+  };
+}
+
 const STEPS = [
   { id: "product", title: "Product Information" },
   { id: "stationary", title: "Stationary Combustion" },
@@ -132,8 +142,14 @@ export default function UploadPage() {
           throw new Error('Failed to fetch products')
         }
         
-        const data: Product[] = await response.json()
-        setExistingProducts(data)
+        let data: Product[] | ProductsResponse = await response.json()
+        // If the response is paginated, extract products from it
+        if ('products' in data) {
+          setExistingProducts(data.products)
+          data = data.products;
+        } else {
+          setExistingProducts(data)
+        }
         
         // If products exist, default to select mode, otherwise default to create mode
         if (data.length > 0) {

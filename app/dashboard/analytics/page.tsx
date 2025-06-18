@@ -122,7 +122,16 @@ export default function AnalyticsPage() {
         if (!productsRes.ok || !batchesRes.ok)
           throw new Error("Failed to fetch products or batches")
 
-        const products = await productsRes.json()
+        let products = await productsRes.json()
+
+        // Handle pagination if needed
+        if ('pagination' in products) {
+          const { products: paginatedProducts } = products as ProductResponsePagination
+          products = paginatedProducts
+        } else {
+          products = products as ProductResponse
+        }
+
         const { batches } = await batchesRes.json()
 
         const batchDetails = await Promise.all(
